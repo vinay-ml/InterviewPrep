@@ -1,4 +1,16 @@
+const fs = require("fs");
+const path = require("path");
 const PythonQuestion = require("../models/PythonQuestion");
+const { deleteFile } = require("../utils/fileUtils");
+
+// Helper Function to Resolve File Path
+const resolveFilePath = (imageUrl) => {
+  return path.join(
+    __dirname,
+    "..",
+    imageUrl.replace(`${process.env.SERVER_URL || "http://localhost:5000"}`, "")
+  );
+};
 
 // Get all Python questions
 exports.getAllPythonQuestions = async (req, res) => {
@@ -49,7 +61,7 @@ exports.addPythonQuestion = async (req, res) => {
 // Update a Python question
 exports.updatePythonQuestion = async (req, res) => {
   try {
-    const { id } = req.params; // Question ID from URL params
+    const { id } = req.params;
     const { title, answers, sampleCode, videoURL } = req.body;
 
     let updateData = {
@@ -59,10 +71,13 @@ exports.updatePythonQuestion = async (req, res) => {
       videoURL,
     };
 
-    // If a new image is uploaded
-    if (req.file) {
+    // Handle new images if uploaded
+    if (req.files) {
       const serverUrl = process.env.SERVER_URL || "http://localhost:5000";
-      updateData.image = `${serverUrl}/assets/python/${req.file.filename}`;
+      const newImages = req.files.map(
+        (file) => `${serverUrl}/assets/python/${file.filename}`
+      );
+      updateData.images = newImages;
     }
 
     const updatedQuestion = await PythonQuestion.findByIdAndUpdate(
@@ -86,18 +101,31 @@ exports.updatePythonQuestion = async (req, res) => {
   }
 };
 
-// Delete a Python question
+// Delete a Python question and its images
 exports.deletePythonQuestion = async (req, res) => {
   try {
-    const { id } = req.params; // Question ID from URL params
+    const { id } = req.params;
 
-    const deletedQuestion = await PythonQuestion.findByIdAndDelete(id);
+    const question = await PythonQuestion.findById(id);
 
-    if (!deletedQuestion) {
+    if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
 
-    res.status(200).json({ message: "Python question deleted successfully" });
+    // Delete all associated images
+    if (question.images && question.images.length > 0) {
+      question.images.forEach((imageUrl) => {
+        const filePath = resolveFilePath(imageUrl);
+        deleteFile(filePath);
+      });
+    }
+
+    // Delete the question
+    await PythonQuestion.findByIdAndDelete(id);
+
+    res.status(200).json({
+      message: "Python question and associated images deleted successfully",
+    });
   } catch (error) {
     res
       .status(500)
@@ -109,20 +137,31 @@ exports.deletePythonQuestion = async (req, res) => {
 exports.deleteImage = async (req, res) => {
   try {
     const { id, imageUrl } = req.body;
+
     const question = await PythonQuestion.findById(id);
 
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
 
-    // Remove the image from the images array
-    question.images = question.images.filter((image) => image !== imageUrl);
+    // Check if the image exists in the question
+    if (!question.images.includes(imageUrl)) {
+      return res
+        .status(404)
+        .json({ message: "Image not found in this question" });
+    }
 
+    // Remove the image from the images array
+    question.images = question.images.filter((img) => img !== imageUrl);
     await question.save();
-    res.status(200).json({
-      message: "Image deleted successfully",
-      data: question,
-    });
+
+    // Delete the file from the assets folder
+    const filePath = resolveFilePath(imageUrl);
+    deleteFile(filePath);
+
+    res
+      .status(200)
+      .json({ message: "Image deleted successfully", data: question });
   } catch (error) {
     res
       .status(500)
