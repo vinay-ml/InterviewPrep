@@ -1,28 +1,6 @@
 const PythonQuestion = require("../models/PythonQuestion");
 const cloudinary = require("../config/cloudinaryConfig");
-
-// Helper Function to Extract Correct Public ID from Cloudinary URL
-const getCloudinaryPublicId = (imageUrl) => {
-  try {
-    // Extract everything after "upload/"
-    const urlParts = imageUrl.split("upload/");
-    if (urlParts.length < 2) {
-      console.error("Invalid Cloudinary URL format:", imageUrl);
-      return null;
-    }
-
-    // Remove the version prefix and extension
-    const publicIdWithExt = urlParts[1]
-      .split("/")
-      .slice(1)
-      .join("/")
-      .split(".")[0];
-    return publicIdWithExt;
-  } catch (error) {
-    console.error("Error extracting Public ID:", error.message);
-    return null;
-  }
-};
+const { getCloudinaryPublicId } = require("../utils/cloudinaryUtils");
 
 // ** Get All Questions **
 exports.getAllPythonQuestions = async (req, res) => {
