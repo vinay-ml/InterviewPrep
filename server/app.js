@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const PythonTheoryQuestionRoutes = require("./routes/PythonTheoryQuestionRoutes");
 const PythonCodingQuestionRoutes = require("./routes/PythonCodingQuestionRoutes");
 const javaScriptTheoryQuestionRoutes = require("./routes/javaScriptTheoryQuestionRoutes");
+const javaScriptCodingQuestionRoutes = require("./routes/javaScriptCodingQuestionRoutes");
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/PythonTheoryQuestions", PythonTheoryQuestionRoutes);
 app.use("/api/PythonCodingQuestions", PythonCodingQuestionRoutes);
 app.use("/api/javaScriptTheoryQuestions", javaScriptTheoryQuestionRoutes);
+app.use("/api/javaScriptCodingQuestions", javaScriptCodingQuestionRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
