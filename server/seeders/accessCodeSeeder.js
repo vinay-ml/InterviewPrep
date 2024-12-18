@@ -5,18 +5,16 @@ const AccessCode = require("../models/AccessCode");
 // Load environment variables
 dotenv.config();
 
-// Access codes to seed
-const accessCodes = [];
-
 // Seed function
 const seedAccessCodes = async () => {
   try {
-    // Connect to the database using the reusable function
+    // Connect to the database
     await connectDB();
 
     console.log("Seeding access codes...");
-    await AccessCode.deleteMany(); // Clear existing codes
+    await AccessCode.deleteMany();
 
+    const accessCodes = [];
     const day = new Date().getDate().toString().padStart(2, "0");
     const seededCodes = accessCodes.map((code) => ({
       accessCode: `${code}${day}`,

@@ -4,20 +4,35 @@ const AccessCode = require("../models/AccessCode");
 // Update Access Codes at Application Startup
 exports.updateAccessCodes = async () => {
   try {
-    const day = new Date().getDate().toString().padStart(2, "0");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    const codes = await AccessCode.find();
-
-    for (const code of codes) {
-      const updatedCode = `${code.accessCode.slice(0, -2)}${day}`;
-      await AccessCode.findByIdAndUpdate(
-        code._id,
-        { accessCode: updatedCode, updatedAt: Date.now() },
-        { new: true }
-      );
+    // Check if codes are already updated for today
+    const existingCode = await AccessCode.findOne({
+      lastUpdated: { $gte: today },
+    });
+    if (existingCode) {
+      console.log("Access codes are already updated for today.");
+      return;
     }
 
-    console.log("Access codes updated successfully");
+    // Fetch existing access codes
+    const codes = await AccessCode.find();
+
+    if (!codes.length) {
+      console.log("No access codes found in the database.");
+      return;
+    }
+
+    // Append today's date to the existing access codes
+    const day = new Date().getDate().toString().padStart(2, "0");
+    for (const code of codes) {
+      code.accessCode = `${code.accessCode.slice(0, -2)}${day}`;
+      code.lastUpdated = today;
+      await code.save();
+    }
+
+    console.log("Access codes updated successfully for today.");
   } catch (error) {
     console.error("Error updating access codes:", error.message);
   }

@@ -19,15 +19,15 @@ app.use(cors());
 // Connect Database
 connectDB();
 
+// Update access codes at server start
+updateAccessCodes();
+
 // Serve Static Files
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 // Routes
-app.use("/api/auth", authRoutes); // Authentication routes
+app.use("/api/auth", authRoutes);
 app.use("/api/python", pythonRoutes);
-
-// Update access codes at server start
-updateAccessCodes();
 
 // Start Server
 const PORT = process.env.PORT || 5000;
