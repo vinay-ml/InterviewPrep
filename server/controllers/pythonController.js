@@ -1,18 +1,30 @@
-const fs = require("fs");
-const path = require("path");
 const PythonQuestion = require("../models/PythonQuestion");
-const { deleteFile } = require("../utils/fileUtils");
+const cloudinary = require("../config/cloudinaryConfig");
 
-// Helper Function to Resolve File Path
-const resolveFilePath = (imageUrl) => {
-  return path.join(
-    __dirname,
-    "..",
-    imageUrl.replace(`${process.env.SERVER_URL || "http://localhost:5000"}`, "")
-  );
+// Helper Function to Extract Correct Public ID from Cloudinary URL
+const getCloudinaryPublicId = (imageUrl) => {
+  try {
+    // Extract everything after "upload/"
+    const urlParts = imageUrl.split("upload/");
+    if (urlParts.length < 2) {
+      console.error("Invalid Cloudinary URL format:", imageUrl);
+      return null;
+    }
+
+    // Remove the version prefix and extension
+    const publicIdWithExt = urlParts[1]
+      .split("/")
+      .slice(1)
+      .join("/")
+      .split(".")[0];
+    return publicIdWithExt;
+  } catch (error) {
+    console.error("Error extracting Public ID:", error.message);
+    return null;
+  }
 };
 
-// Get all Python questions
+// ** Get All Questions **
 exports.getAllPythonQuestions = async (req, res) => {
   try {
     const questions = await PythonQuestion.find();
@@ -21,22 +33,20 @@ exports.getAllPythonQuestions = async (req, res) => {
       data: questions,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching questions", error: error.message });
+    res.status(500).json({
+      message: "Error fetching questions",
+      error: error.message,
+    });
   }
 };
 
-// Add a new Python question
+// ** Add a New Question **
 exports.addPythonQuestion = async (req, res) => {
   try {
     const { title, answers, sampleCode, videoURL } = req.body;
-    const serverUrl = process.env.SERVER_URL || "http://localhost:5000";
 
-    // Collect all uploaded image URLs
-    const images = req.files
-      ? req.files.map((file) => `${serverUrl}/assets/python/${file.filename}`)
-      : [];
+    // Upload images to Cloudinary and store their URLs
+    const images = req.files ? req.files.map((file) => file.path) : [];
 
     const newQuestion = new PythonQuestion({
       title,
@@ -52,119 +62,115 @@ exports.addPythonQuestion = async (req, res) => {
       data: newQuestion,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error adding question", error: error.message });
+    res.status(500).json({
+      message: "Error adding question",
+      error: error.message,
+    });
   }
 };
 
-// Update a Python question
+// ** Update an Existing Question **
 exports.updatePythonQuestion = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, answers, sampleCode, videoURL } = req.body;
 
-    let updateData = {
-      title,
-      answers: answers ? answers.split(",") : undefined,
-      sampleCode,
-      videoURL,
-    };
-
-    // Handle new images if uploaded
-    if (req.files) {
-      const serverUrl = process.env.SERVER_URL || "http://localhost:5000";
-      const newImages = req.files.map(
-        (file) => `${serverUrl}/assets/python/${file.filename}`
-      );
-      updateData.images = newImages;
-    }
-
-    const updatedQuestion = await PythonQuestion.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    );
-
-    if (!updatedQuestion) {
-      return res.status(404).json({ message: "Question not found" });
-    }
-
-    res.status(200).json({
-      message: "Python question updated successfully",
-      data: updatedQuestion,
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating question", error: error.message });
-  }
-};
-
-// Delete a Python question and its images
-exports.deletePythonQuestion = async (req, res) => {
-  try {
-    const { id } = req.params;
-
     const question = await PythonQuestion.findById(id);
-
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
 
-    // Delete all associated images
-    if (question.images && question.images.length > 0) {
-      question.images.forEach((imageUrl) => {
-        const filePath = resolveFilePath(imageUrl);
-        deleteFile(filePath);
-      });
+    // Update the fields
+    question.title = title || question.title;
+    question.answers = answers ? answers.split(",") : question.answers;
+    question.sampleCode = sampleCode || question.sampleCode;
+    question.videoURL = videoURL || question.videoURL;
+
+    // If new images are uploaded, delete old ones and replace them
+    if (req.files && req.files.length > 0) {
+      for (const imageUrl of question.images) {
+        const publicId = getCloudinaryPublicId(imageUrl);
+        if (publicId) await cloudinary.uploader.destroy(publicId);
+      }
+
+      // Upload new images
+      question.images = req.files.map((file) => file.path);
     }
 
-    // Delete the question
-    await PythonQuestion.findByIdAndDelete(id);
-
+    await question.save();
     res.status(200).json({
-      message: "Python question and associated images deleted successfully",
+      message: "Python question updated successfully",
+      data: question,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error deleting question", error: error.message });
+    res.status(500).json({
+      message: "Error updating question",
+      error: error.message,
+    });
   }
 };
 
-// Delete a specific image from a question
+// ** Delete a Specific Image from a Question **
 exports.deleteImage = async (req, res) => {
   try {
     const { id, imageUrl } = req.body;
 
     const question = await PythonQuestion.findById(id);
-
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
 
-    // Check if the image exists in the question
     if (!question.images.includes(imageUrl)) {
       return res
         .status(404)
         .json({ message: "Image not found in this question" });
     }
 
-    // Remove the image from the images array
+    const publicId = getCloudinaryPublicId(imageUrl);
+    if (publicId) await cloudinary.uploader.destroy(publicId);
+
+    // Remove the image from the MongoDB array
     question.images = question.images.filter((img) => img !== imageUrl);
     await question.save();
 
-    // Delete the file from the assets folder
-    const filePath = resolveFilePath(imageUrl);
-    deleteFile(filePath);
-
-    res
-      .status(200)
-      .json({ message: "Image deleted successfully", data: question });
+    res.status(200).json({
+      message: "Image deleted successfully",
+      data: question,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error deleting image", error: error.message });
+    res.status(500).json({
+      message: "Error deleting image",
+      error: error.message,
+    });
+  }
+};
+
+// ** Delete a Question and its Images **
+exports.deletePythonQuestion = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const question = await PythonQuestion.findById(id);
+    if (!question) {
+      return res.status(404).json({ message: "Question not found" });
+    }
+
+    // Delete all associated images in Cloudinary
+    for (const imageUrl of question.images) {
+      const publicId = getCloudinaryPublicId(imageUrl);
+      if (publicId) await cloudinary.uploader.destroy(publicId);
+    }
+
+    // Delete the question from MongoDB
+    await PythonQuestion.findByIdAndDelete(id);
+
+    res.status(200).json({
+      message: "Question and associated images deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error deleting question",
+      error: error.message,
+    });
   }
 };

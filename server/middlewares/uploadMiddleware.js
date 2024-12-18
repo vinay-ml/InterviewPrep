@@ -1,34 +1,26 @@
 const multer = require("multer");
-const path = require("path");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("../config/cloudinaryConfig");
 const { v4: uuidv4 } = require("uuid");
-const fs = require("fs");
 
-// Ensure Directory Exists
-const ensureDirectoryExists = (folderPath) => {
-  if (!fs.existsSync(folderPath)) {
-    fs.mkdirSync(folderPath, { recursive: true });
-  }
-};
-
-// Multer Storage Configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+// Multer Cloudinary Storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
     let category = req.body.category || "general";
     category = category.toLowerCase();
-    const folderPath = path.join(__dirname, `../assets/${category}`);
-    ensureDirectoryExists(folderPath);
-    cb(null, folderPath);
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
+
+    return {
+      folder: `InterviewPrep/${category}`, // Organized under InterviewPrep/category
+      format: file.originalname.split(".").pop(), // Retain file format
+      public_id: uuidv4(), // Unique identifier
+    };
   },
 });
 
-// File Filter and Limits
 const upload = multer({
   storage,
-  limits: { fileSize: 1 * 1024 * 1024 }, // 1MB limit per file
+  limits: { fileSize: 1 * 1024 * 1024 }, // 1MB limit
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
@@ -38,8 +30,6 @@ const upload = multer({
   },
 });
 
-// Middleware for Single and Multiple Files
 module.exports = {
-  uploadSingle: upload.single("image"),
   uploadMultiple: upload.array("images", 8),
 };
