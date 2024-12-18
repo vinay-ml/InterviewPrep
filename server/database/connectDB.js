@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 require("colors");
 
-dotenv.config({ path: "server/config/config.env" });
+dotenv.config();
 
 const MONGO_URI = process.env.MONGO_URI;
 
