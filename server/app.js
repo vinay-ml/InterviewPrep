@@ -7,6 +7,7 @@ const { updateAccessCodes } = require("./controllers/authController");
 const authRoutes = require("./routes/authRoutes");
 
 const PythonTheoryQuestionRoutes = require("./routes/PythonTheoryQuestionRoutes");
+const PythonCodingQuestionRoutes = require("./routes/PythonCodingQuestionRoutes");
 const javaScriptTheoryQuestionRoutes = require("./routes/javaScriptTheoryQuestionRoutes");
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use("/assets", express.static(path.join(__dirname, "assets")));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/PythonTheoryQuestions", PythonTheoryQuestionRoutes);
+app.use("/api/PythonCodingQuestions", PythonCodingQuestionRoutes);
 app.use("/api/javaScriptTheoryQuestions", javaScriptTheoryQuestionRoutes);
 
 // Start Server
