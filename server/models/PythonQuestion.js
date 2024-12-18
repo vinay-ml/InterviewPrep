@@ -4,7 +4,7 @@ const PythonQuestionSchema = new mongoose.Schema({
   title: { type: String, required: true },
   answers: { type: [String], required: true },
   sampleCode: { type: String },
-  image: { type: String }, // Image URL path
+  images: { type: [String], default: [] },
   videoURL: { type: String },
 });
 

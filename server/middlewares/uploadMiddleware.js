@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
 // File Filter and Limits
 const upload = multer({
   storage,
-  limits: { fileSize: 1 * 1024 * 1024 }, // 1MB limit
+  limits: { fileSize: 1 * 1024 * 1024 }, // 1MB limit per file
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
@@ -38,4 +38,8 @@ const upload = multer({
   },
 });
 
-module.exports = upload;
+// Middleware for Single and Multiple Files
+module.exports = {
+  uploadSingle: upload.single("image"),
+  uploadMultiple: upload.array("images", 8),
+};

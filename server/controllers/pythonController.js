@@ -4,12 +4,10 @@ const PythonQuestion = require("../models/PythonQuestion");
 exports.getAllPythonQuestions = async (req, res) => {
   try {
     const questions = await PythonQuestion.find();
-    res
-      .status(200)
-      .json({
-        message: "All Python questions retrieved successfully",
-        data: questions,
-      });
+    res.status(200).json({
+      message: "All Python questions retrieved successfully",
+      data: questions,
+    });
   } catch (error) {
     res
       .status(500)
@@ -22,15 +20,17 @@ exports.addPythonQuestion = async (req, res) => {
   try {
     const { title, answers, sampleCode, videoURL } = req.body;
     const serverUrl = process.env.SERVER_URL || "http://localhost:5000";
-    const image = req.file
-      ? `${serverUrl}/assets/python/${req.file.filename}`
-      : null;
+
+    // Collect all uploaded image URLs
+    const images = req.files
+      ? req.files.map((file) => `${serverUrl}/assets/python/${file.filename}`)
+      : [];
 
     const newQuestion = new PythonQuestion({
       title,
       answers: answers.split(","),
       sampleCode,
-      image,
+      images,
       videoURL,
     });
 
@@ -102,5 +102,30 @@ exports.deletePythonQuestion = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error deleting question", error: error.message });
+  }
+};
+
+// Delete a specific image from a question
+exports.deleteImage = async (req, res) => {
+  try {
+    const { id, imageUrl } = req.body;
+    const question = await PythonQuestion.findById(id);
+
+    if (!question) {
+      return res.status(404).json({ message: "Question not found" });
+    }
+
+    // Remove the image from the images array
+    question.images = question.images.filter((image) => image !== imageUrl);
+
+    await question.save();
+    res.status(200).json({
+      message: "Image deleted successfully",
+      data: question,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error deleting image", error: error.message });
   }
 };
