@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const PythonQuestionSchema = new mongoose.Schema({
+const PythonTheoryQuestionSchema = new mongoose.Schema({
   title: { type: String, required: true },
   answers: { type: [String], required: true },
   sampleCode: { type: String },
@@ -8,4 +8,7 @@ const PythonQuestionSchema = new mongoose.Schema({
   videoURL: { type: String },
 });
 
-module.exports = mongoose.model("PythonQuestion", PythonQuestionSchema);
+module.exports = mongoose.model(
+  "PythonTheoryQuestions",
+  PythonTheoryQuestionSchema
+);

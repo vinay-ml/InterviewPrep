@@ -5,7 +5,7 @@ const path = require("path");
 const connectDB = require("./database/connectDB");
 const { updateAccessCodes } = require("./controllers/authController");
 
-const pythonRoutes = require("./routes/pythonRoutes");
+const PythonTheoryQuestionRoutes = require("./routes/PythonTheoryQuestionRoutes");
 const authRoutes = require("./routes/authRoutes");
 
 dotenv.config();
@@ -27,7 +27,7 @@ app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/python", pythonRoutes);
+app.use("/api/PythonTheoryQuestions", PythonTheoryQuestionRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;

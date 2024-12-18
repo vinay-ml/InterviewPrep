@@ -1,11 +1,11 @@
-const PythonQuestion = require("../models/PythonQuestion");
+const PythonTheoryQuestions = require("../models/PythonTheoryQuestions");
 const cloudinary = require("../config/cloudinaryConfig");
 const { getCloudinaryPublicId } = require("../utils/cloudinaryUtils");
 
 // ** Get All Questions **
-exports.getAllPythonQuestions = async (req, res) => {
+exports.getAllPythonTheoryQuestions = async (req, res) => {
   try {
-    const questions = await PythonQuestion.find();
+    const questions = await PythonTheoryQuestions.find();
     res.status(200).json({
       message: "All Python questions retrieved successfully",
       data: questions,
@@ -19,14 +19,14 @@ exports.getAllPythonQuestions = async (req, res) => {
 };
 
 // ** Add a New Question **
-exports.addPythonQuestion = async (req, res) => {
+exports.addPythonTheoryQuestion = async (req, res) => {
   try {
     const { title, answers, sampleCode, videoURL } = req.body;
 
     // Upload images to Cloudinary and store their URLs
     const images = req.files ? req.files.map((file) => file.path) : [];
 
-    const newQuestion = new PythonQuestion({
+    const newQuestion = new PythonTheoryQuestions({
       title,
       answers: answers.split(","),
       sampleCode,
@@ -48,12 +48,12 @@ exports.addPythonQuestion = async (req, res) => {
 };
 
 // ** Update an Existing Question **
-exports.updatePythonQuestion = async (req, res) => {
+exports.updatePythonTheoryQuestion = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, answers, sampleCode, videoURL } = req.body;
 
-    const question = await PythonQuestion.findById(id);
+    const question = await PythonTheoryQuestions.findById(id);
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
@@ -89,11 +89,11 @@ exports.updatePythonQuestion = async (req, res) => {
 };
 
 // ** Delete a Specific Image from a Question **
-exports.deleteImage = async (req, res) => {
+exports.deletePythonTheoryQuestionImage = async (req, res) => {
   try {
     const { id, imageUrl } = req.body;
 
-    const question = await PythonQuestion.findById(id);
+    const question = await PythonTheoryQuestions.findById(id);
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
@@ -124,11 +124,11 @@ exports.deleteImage = async (req, res) => {
 };
 
 // ** Delete a Question and its Images **
-exports.deletePythonQuestion = async (req, res) => {
+exports.deletePythonTheoryQuestion = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const question = await PythonQuestion.findById(id);
+    const question = await PythonTheoryQuestions.findById(id);
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
@@ -140,7 +140,7 @@ exports.deletePythonQuestion = async (req, res) => {
     }
 
     // Delete the question from MongoDB
-    await PythonQuestion.findByIdAndDelete(id);
+    await PythonTheoryQuestions.findByIdAndDelete(id);
 
     res.status(200).json({
       message: "Question and associated images deleted successfully",
