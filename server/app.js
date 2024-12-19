@@ -14,6 +14,7 @@ const HTMLQuestionRoutes = require("./routes/HTMLQuestionRoutes");
 const CSSQuestionRoutes = require("./routes/CSSQuestionRoutes");
 const ReactJSQuestionRoutes = require("./routes/ReactJSQuestionRoutes");
 const SQLQuestionRoutes = require("./routes/SQLQuestionRoutes");
+const PowerBIQuestionRoutes = require("./routes/PowerBIQuestionRoutes");
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ app.use("/api/HTMLQuestions", HTMLQuestionRoutes);
 app.use("/api/CSSQuestions", CSSQuestionRoutes);
 app.use("/api/ReactJSQuestions", ReactJSQuestionRoutes);
 app.use("/api/SQLQuestions", SQLQuestionRoutes);
+app.use("/api/PowerBIQuestions", PowerBIQuestionRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
