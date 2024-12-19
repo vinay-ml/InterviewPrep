@@ -12,6 +12,7 @@ const javaScriptTheoryQuestionRoutes = require("./routes/javaScriptTheoryQuestio
 const javaScriptCodingQuestionRoutes = require("./routes/javaScriptCodingQuestionRoutes");
 const HTMLQuestionRoutes = require("./routes/HTMLQuestionRoutes");
 const CSSQuestionRoutes = require("./routes/CSSQuestionRoutes");
+const ReactJSQuestionRoutes = require("./routes/ReactJSQuestionRoutes");
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use("/api/javaScriptTheoryQuestions", javaScriptTheoryQuestionRoutes);
 app.use("/api/javaScriptCodingQuestions", javaScriptCodingQuestionRoutes);
 app.use("/api/HTMLQuestions", HTMLQuestionRoutes);
 app.use("/api/CSSQuestions", CSSQuestionRoutes);
+app.use("/api/ReactJSQuestions", ReactJSQuestionRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
