@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogActions,
   Backdrop,
+  Skeleton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -24,6 +25,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState({});
 
   const handleConfirmDelete = async () => {
     setConfirmingDelete(true);
@@ -127,6 +129,15 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
                   marginBottom: "20px",
                 }}
               >
+                {!imageLoaded[image] && (
+                  <Skeleton
+                    variant="rectangular"
+                    width="100%"
+                    height={200}
+                    animation="wave"
+                    sx={{ borderRadius: "5px" }}
+                  />
+                )}
                 <img
                   src={image}
                   alt={`Visual representation for question ${index + 1}`}
@@ -134,7 +145,14 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
                     width: "100%",
                     borderRadius: "5px",
                     objectFit: "cover",
+                    display: imageLoaded[image] ? "block" : "none",
                   }}
+                  onLoad={() =>
+                    setImageLoaded((prev) => ({
+                      ...prev,
+                      [image]: true,
+                    }))
+                  }
                 />
                 <IconButton
                   sx={{
