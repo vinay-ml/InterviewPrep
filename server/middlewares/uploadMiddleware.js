@@ -11,8 +11,8 @@ const storage = new CloudinaryStorage({
     category = category.toLowerCase();
 
     return {
-      folder: `InterviewPrep/${category}`, // Organized under InterviewPrep/category
-      format: file.originalname.split(".").pop(), // Retain file format
+      folder: `InterviewPrep/${category}`,
+      format: file.originalname.split(".").pop(),
       public_id: uuidv4(), // Unique identifier
     };
   },
