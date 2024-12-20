@@ -48,7 +48,11 @@ const JavaScriptTheoryPage = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom sx={{ marginBottom: "20px" }}>
-        {`JavaScript Theory Questions: ${data?.data?.length}`}
+        {`${
+          data?.data?.length > 0
+            ? `JavaScript Theory Questions: ${data?.data?.length}`
+            : "JavaScript Theory Questions: Coming soon"
+        }`}
       </Typography>
       <Grid container spacing={5}>
         {data?.data.map((question, index) => (
