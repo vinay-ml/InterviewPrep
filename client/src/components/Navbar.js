@@ -1,8 +1,25 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import { Link } from "react-router-dom";
+import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material";
+import { NavLink, useLocation } from "react-router-dom";
 
 const Navbar = () => {
+  const location = useLocation();
+
+  // Styles for active and inactive links
+  const linkStyles = {
+    color: "inherit",
+    textDecoration: "none",
+    fontWeight: "normal", // Changed font weight to normal
+    marginLeft: "15px",
+    paddingBottom: "5px",
+    fontSize: "16px", // Optional: Adjust font size if needed
+  };
+
+  const activeLinkStyles = {
+    ...linkStyles,
+    borderBottom: "2px solid #fff",
+  };
+
   return (
     <AppBar
       position="sticky"
@@ -16,13 +33,35 @@ const Navbar = () => {
           InterviewPrep
         </Typography>
         <Box>
-          <Button color="inherit" component={Link} to="/javascript-theory">
+          <Button
+            component={NavLink}
+            to="/javascript-theory"
+            sx={
+              location.pathname === "/javascript-theory"
+                ? activeLinkStyles
+                : linkStyles
+            }
+          >
             JavaScript
           </Button>
-          <Button color="inherit" component={Link} to="/python-theory">
+
+          <Button
+            component={NavLink}
+            to="/python-theory"
+            sx={
+              location.pathname === "/python-theory"
+                ? activeLinkStyles
+                : linkStyles
+            }
+          >
             Python
           </Button>
-          <Button color="inherit" component={Link} to="/sql">
+
+          <Button
+            component={NavLink}
+            to="/sql"
+            sx={location.pathname === "/sql" ? activeLinkStyles : linkStyles}
+          >
             SQL
           </Button>
         </Box>

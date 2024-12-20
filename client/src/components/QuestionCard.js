@@ -161,8 +161,8 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
               marginTop: "10px",
             }}
           >
-            <Button variant="outlined" color="primary">
-              Update
+            <Button variant="outlined" color="primary" size="small">
+              Update Question
             </Button>
             <IconButton
               color="secondary"
