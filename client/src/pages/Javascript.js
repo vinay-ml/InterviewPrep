@@ -92,7 +92,24 @@ const Javascript = () => {
           marginBottom: "30px",
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        {/* Add Question Button */}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenModal(true)}
+        >
+          + Add {category} interview question
+        </Button>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{
+            color: "primary.main",
+            letterSpacing: "0.05em",
+            fontSize: "24px",
+            textTransform: "capitalize",
+          }}
+        >
           {Object.values(selectedQuestionTypes).every(
             (isSelected) => !isSelected
           )
@@ -138,14 +155,6 @@ const Javascript = () => {
             />
           </Box>
         </Box>
-        {/* Add Question Button */}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenModal(true)}
-        >
-          + Add {category} interview question
-        </Button>
       </Box>
 
       <Grid container spacing={5}>

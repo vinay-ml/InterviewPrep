@@ -19,14 +19,22 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useLocation } from "react-router-dom";
+import AddQuestionModal from "./AddQuestionModal"; // Import the modal
 
-const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
+const QuestionCard = ({
+  question,
+  onDelete,
+  onDeleteImage,
+  index,
+  onUpdate,
+}) => {
   const [deletingQuestion, setDeletingQuestion] = useState(false);
   const [deletingImageId, setDeletingImageId] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState({});
+  const [updateModalOpen, setUpdateModalOpen] = useState(false); // State for update modal
 
   const location = useLocation();
   const language = location.pathname
@@ -58,6 +66,19 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
     setOpenDialog(true);
   };
 
+  const handleOpenUpdateModal = () => {
+    setUpdateModalOpen(true);
+  };
+
+  const handleCloseUpdateModal = () => {
+    setUpdateModalOpen(false);
+  };
+
+  const handleUpdate = async (updatedData) => {
+    await onUpdate({ id: question._id, ...updatedData });
+    setUpdateModalOpen(false);
+  };
+
   const hasAnswers =
     question.answers && question.answers.some((ans) => ans.trim() !== "");
 
@@ -74,14 +95,19 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
               {question.answers.map(
                 (answer, i) =>
                   answer.trim() && (
-                    <ListItem key={i} sx={{ paddingLeft: "16px" }}>
+                    <ListItem
+                      key={i}
+                      sx={{
+                        paddingLeft: "16px",
+                        fontSize: "18px",
+                      }}
+                    >
                       {`• ${answer}`}
                     </ListItem>
                   )
               )}
             </List>
           )}
-
           {question.sampleCode && question.sampleCode.trim() && (
             <>
               <Typography
@@ -195,7 +221,12 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
               marginTop: "20px",
             }}
           >
-            <Button variant="outlined" color="primary" size="small">
+            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              onClick={handleOpenUpdateModal}
+            >
               Update Question
             </Button>
             <IconButton
@@ -255,6 +286,17 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
           </DialogActions>
         </Dialog>
       </Backdrop>
+
+      {/* Update Question Modal */}
+      <AddQuestionModal
+        open={updateModalOpen}
+        onClose={handleCloseUpdateModal}
+        onSubmit={handleUpdate}
+        technology={location.pathname.split("-")[0].replace("/", "")}
+        mode="update"
+        questionId={question._id}
+        initialData={question}
+      />
     </>
   );
 };
