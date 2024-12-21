@@ -93,10 +93,15 @@ const Javascript = () => {
         }}
       >
         <Typography variant="h5" gutterBottom>
-          {filteredQuestions?.length > 0
+          {Object.values(selectedQuestionTypes).every(
+            (isSelected) => !isSelected
+          )
+            ? `${category} interview questions: 0`
+            : filteredQuestions?.length > 0
             ? `${category} interview questions: ${filteredQuestions.length}`
             : `${category} interview questions: Coming soon`}
         </Typography>
+
         <Box
           sx={{
             display: "flex",
