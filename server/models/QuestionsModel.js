@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const QuestionsSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  answers: { type: [String], required: true },
+  answers: { type: [String] },
   sampleCode: { type: String },
   images: { type: [String], default: [] },
   referenceURLs: { type: [String], default: [] },

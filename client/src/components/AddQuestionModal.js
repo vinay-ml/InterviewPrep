@@ -170,16 +170,17 @@ const AddQuestionModal = ({
               rows={2}
             />
 
-            {/* Answers */}
-            <TextField
-              label="Answer (use chatGPT to get small answer then paste here)"
-              name="answers"
-              multiline
-              rows={7}
-              value={formData.answers}
-              onChange={handleInputChange}
-              required
-            />
+            {/* Conditional Answers */}
+            {formData.questionType !== "coding" && (
+              <TextField
+                label="Answer (use chatGPT to get small answer then paste here)"
+                name="answers"
+                multiline
+                rows={7}
+                value={formData.answers}
+                onChange={handleInputChange}
+              />
+            )}
 
             {/* Sample Code */}
             <Box sx={{ position: "relative" }}>
@@ -187,7 +188,7 @@ const AddQuestionModal = ({
                 variant="body2"
                 sx={{ fontWeight: "bold", marginBottom: "8px" }}
               >
-                Paste/Save your code (it's live preview)
+                Code (use chatGPT to get the Code then paste here)
               </Typography>
               <TextField
                 name="sampleCode"
@@ -195,7 +196,7 @@ const AddQuestionModal = ({
                 onChange={handleInputChange}
                 multiline
                 rows={8}
-                placeholder="Paste your code here..."
+                placeholder="use chatGPT to get the Code then paste here..."
                 fullWidth
                 InputProps={{
                   style: {
@@ -207,9 +208,6 @@ const AddQuestionModal = ({
                     fontSize: "14px",
                     lineHeight: "1.5",
                   },
-                }}
-                InputLabelProps={{
-                  style: { color: "#d4d4d4" }, // Optional label color
                 }}
               />
               {formData.sampleCode.trim() && (
@@ -323,12 +321,7 @@ const AddQuestionModal = ({
             onClick={handleSubmit}
             variant="contained"
             color="primary"
-            disabled={
-              !formData.title ||
-              !formData.answers ||
-              !formData.questionType ||
-              loading
-            }
+            disabled={!formData.title || !formData.questionType || loading}
           >
             Submit
           </Button>

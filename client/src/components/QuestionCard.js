@@ -109,20 +109,31 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
           )}
 
           {question.referenceURLs &&
-            question.referenceURLs.map((url, i) => (
-              <Typography
-                key={i}
-                variant="body1"
-                gutterBottom
-                sx={{ marginTop: "20px", marginBottom: "20px" }}
-              >
-                Reference Link {i + 1}:{" "}
-                <a href={url} target="_blank" rel="noopener noreferrer">
-                  {url}
-                </a>
-              </Typography>
-            ))}
-
+            question.referenceURLs.some((url) => url.trim() !== "") && (
+              <>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "bold", marginTop: "10px" }}
+                >
+                  Reference Links:
+                </Typography>
+                {question.referenceURLs.map(
+                  (url, i) =>
+                    url.trim() && (
+                      <Typography
+                        key={i}
+                        variant="body1"
+                        gutterBottom
+                        sx={{ marginTop: "5px" }}
+                      >
+                        <a href={url} target="_blank" rel="noopener noreferrer">
+                          {url}
+                        </a>
+                      </Typography>
+                    )
+                )}
+              </>
+            )}
           {question.images &&
             question.images.length > 0 &&
             question.images.map((image, i) => (
@@ -181,7 +192,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginTop: "10px",
+              marginTop: "20px",
             }}
           >
             <Button variant="outlined" color="primary" size="small">

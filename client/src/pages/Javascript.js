@@ -6,7 +6,15 @@ import {
   useDeleteImageMutation,
   useAddQuestionMutation,
 } from "../redux/api/QuestionsApi";
-import { Grid, Typography, Box, CircularProgress, Button } from "@mui/material";
+import {
+  Grid,
+  Typography,
+  Box,
+  CircularProgress,
+  Button,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 import QuestionCard from "../components/QuestionCard";
 import AddQuestionModal from "../components/AddQuestionModal";
 
@@ -21,6 +29,12 @@ const Javascript = () => {
 
   const [openModal, setOpenModal] = useState(false);
 
+  // State to manage selected question types
+  const [selectedQuestionTypes, setSelectedQuestionTypes] = useState({
+    coding: true,
+    theory: true,
+  });
+
   const handleAddQuestion = async (formData) => {
     await addQuestion(formData);
     setOpenModal(false);
@@ -33,6 +47,17 @@ const Javascript = () => {
   const handleDeleteImage = async ({ id, imageUrl }) => {
     await deleteImage({ id, imageUrl });
   };
+
+  const handleCheckboxChange = (type) => {
+    setSelectedQuestionTypes((prev) => ({
+      ...prev,
+      [type]: !prev[type],
+    }));
+  };
+
+  const filteredQuestions = data?.data.filter(
+    (question) => selectedQuestionTypes[question.questionType]
+  );
 
   if (isLoading) {
     return (
@@ -59,23 +84,67 @@ const Javascript = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Typography variant="h5" gutterBottom sx={{ marginBottom: "20px" }}>
-          {data?.data?.length > 0
-            ? `${category} interview questions: ${data?.data?.length}`
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "30px",
+        }}
+      >
+        <Typography variant="h5" gutterBottom>
+          {filteredQuestions?.length > 0
+            ? `${category} interview questions: ${filteredQuestions.length}`
             : `${category} interview questions: Coming soon`}
         </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 1,
+            alignItems: "center",
+          }}
+        >
+          {/* Label for Question Type */}
+          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+            Question Type:
+          </Typography>
+          {/* Checkboxes for filtering */}
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={selectedQuestionTypes.coding}
+                  onChange={() => handleCheckboxChange("coding")}
+                  color="primary"
+                />
+              }
+              label="Coding"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={selectedQuestionTypes.theory}
+                  onChange={() => handleCheckboxChange("theory")}
+                  color="primary"
+                />
+              }
+              label="Theory"
+            />
+          </Box>
+        </Box>
+        {/* Add Question Button */}
         <Button
           variant="contained"
           color="primary"
           onClick={() => setOpenModal(true)}
-          sx={{ marginBottom: "20px" }}
         >
           + Add {category} interview question
         </Button>
       </Box>
+
       <Grid container spacing={5}>
-        {data?.data.map((question, index) => (
+        {filteredQuestions?.map((question, index) => (
           <Grid item xs={12} md={12} key={question._id}>
             <QuestionCard
               question={question}
