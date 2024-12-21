@@ -101,22 +101,20 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
             </>
           )}
 
-          {question.videoURL && question.videoURL.trim() && (
-            <Typography
-              variant="body1"
-              gutterBottom
-              sx={{ marginTop: "20px", marginBottom: "20px" }}
-            >
-              Reference Link:{" "}
-              <a
-                href={question.videoURL}
-                target="_blank"
-                rel="noopener noreferrer"
+          {question.referenceURLs &&
+            question.referenceURLs.map((url, i) => (
+              <Typography
+                key={i}
+                variant="body1"
+                gutterBottom
+                sx={{ marginTop: "20px", marginBottom: "20px" }}
               >
-                {question.videoURL}
-              </a>
-            </Typography>
-          )}
+                Reference Link {i + 1}:{" "}
+                <a href={url} target="_blank" rel="noopener noreferrer">
+                  {url}
+                </a>
+              </Typography>
+            ))}
 
           {question.images &&
             question.images.length > 0 &&

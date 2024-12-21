@@ -1,16 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const javascriptTheoryQuestionsApi = createApi({
-  reducerPath: "javascriptTheoryQuestionsApi",
+export const questionsApi = createApi({
+  reducerPath: "questionsApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/javaScriptTheoryQuestions",
+    baseUrl: "http://localhost:5000/api/questions",
   }),
-  tagTypes: ["JavaScriptTheoryQuestions"],
+  tagTypes: ["Questions"],
   endpoints: (builder) => ({
-    // Fetch all JavaScript theory questions
+    // Fetch all questions by category
     getAllQuestions: builder.query({
-      query: () => "/all",
-      providesTags: ["JavaScriptTheoryQuestions"],
+      query: (category) => `/all/${category}`,
+      providesTags: ["Questions"],
     }),
 
     // Add a new question
@@ -20,17 +20,17 @@ export const javascriptTheoryQuestionsApi = createApi({
         method: "POST",
         body: formData,
       }),
-      invalidatesTags: ["JavaScriptTheoryQuestions"],
+      invalidatesTags: ["Questions"],
     }),
 
     // Update a question
     updateQuestion: builder.mutation({
       query: ({ id, formData }) => ({
-        url: `/update/${id}`, // Corrected template literal
+        url: `/update/${id}`,
         method: "PUT",
         body: formData,
       }),
-      invalidatesTags: ["JavaScriptTheoryQuestions"],
+      invalidatesTags: ["Questions"],
     }),
 
     // Delete a specific image from a question
@@ -40,7 +40,7 @@ export const javascriptTheoryQuestionsApi = createApi({
         method: "DELETE",
         body,
       }),
-      invalidatesTags: ["JavaScriptTheoryQuestions"],
+      invalidatesTags: ["Questions"],
     }),
 
     // Delete a question and its images
@@ -49,7 +49,7 @@ export const javascriptTheoryQuestionsApi = createApi({
         url: `/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["JavaScriptTheoryQuestions"],
+      invalidatesTags: ["Questions"],
     }),
   }),
 });
@@ -60,4 +60,4 @@ export const {
   useUpdateQuestionMutation,
   useDeleteImageMutation,
   useDeleteQuestionMutation,
-} = javascriptTheoryQuestionsApi;
+} = questionsApi;

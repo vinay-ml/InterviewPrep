@@ -1,13 +1,14 @@
-const javaScriptTheoryQuestions = require("../models/javaScriptTheoryQuestions");
+const Questions = require("../models/QuestionsModel");
 const cloudinary = require("../config/cloudinaryConfig");
 const { getCloudinaryPublicId } = require("../utils/cloudinaryUtils");
 
-// ** Get All Questions **
-exports.getAllJavaScriptTheoryQuestions = async (req, res) => {
+// ** Get All Questions by Category **
+exports.getAllQuestionsByCategory = async (req, res) => {
   try {
-    const questions = await javaScriptTheoryQuestions.find();
+    const { category } = req.params;
+    const questions = await Questions.find({ category });
     res.status(200).json({
-      message: "All Javascript questions retrieved successfully",
+      message: `All ${category} questions retrieved successfully`,
       data: questions,
     });
   } catch (error) {
@@ -19,24 +20,33 @@ exports.getAllJavaScriptTheoryQuestions = async (req, res) => {
 };
 
 // ** Add a New Question **
-exports.addJavaScriptTheoryQuestion = async (req, res) => {
+exports.addQuestion = async (req, res) => {
   try {
-    const { title, answers, sampleCode, videoURL } = req.body;
+    const {
+      title,
+      answers,
+      sampleCode,
+      referenceURLs,
+      questionType,
+      category,
+    } = req.body;
 
     // Upload images to Cloudinary and store their URLs
     const images = req.files ? req.files.map((file) => file.path) : [];
 
-    const newQuestion = new javaScriptTheoryQuestions({
+    const newQuestion = new Questions({
       title,
-      answers: answers.split(","),
+      answers: answers.split("."), // Convert comma-separated string to array
       sampleCode,
       images,
-      videoURL,
+      referenceURLs: referenceURLs.split(","), // Convert to array
+      questionType,
+      category,
     });
 
     await newQuestion.save();
     res.status(201).json({
-      message: "Javascript question added successfully",
+      message: `${category} question added successfully`,
       data: newQuestion,
     });
   } catch (error) {
@@ -48,36 +58,35 @@ exports.addJavaScriptTheoryQuestion = async (req, res) => {
 };
 
 // ** Update an Existing Question **
-exports.updateJavaScriptTheoryQuestion = async (req, res) => {
+exports.updateQuestion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, answers, sampleCode, videoURL } = req.body;
+    const { title, answers, sampleCode, referenceURLs, questionType } =
+      req.body;
 
-    const question = await javaScriptTheoryQuestions.findById(id);
+    const question = await Questions.findById(id);
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
 
-    // Update the fields
+    // Update fields
     question.title = title || question.title;
     question.answers = answers ? answers.split(",") : question.answers;
     question.sampleCode = sampleCode || question.sampleCode;
-    question.videoURL = videoURL || question.videoURL;
+    question.referenceURLs = referenceURLs
+      ? referenceURLs.split(",")
+      : question.referenceURLs;
+    question.questionType = questionType || question.questionType;
 
-    // If new images are uploaded, delete old ones and replace them
+    // If new images are uploaded, add them to the existing array
     if (req.files && req.files.length > 0) {
-      for (const imageUrl of question.images) {
-        const publicId = getCloudinaryPublicId(imageUrl);
-        if (publicId) await cloudinary.uploader.destroy(publicId);
-      }
-
-      // Upload new images
-      question.images = req.files.map((file) => file.path);
+      const newImages = req.files.map((file) => file.path);
+      question.images = [...question.images, ...newImages];
     }
 
     await question.save();
     res.status(200).json({
-      message: "JavaScript question updated successfully",
+      message: "Question updated successfully",
       data: question,
     });
   } catch (error) {
@@ -89,11 +98,11 @@ exports.updateJavaScriptTheoryQuestion = async (req, res) => {
 };
 
 // ** Delete a Specific Image from a Question **
-exports.deleteJavaScriptTheoryQuestionImage = async (req, res) => {
+exports.deleteQuestionImage = async (req, res) => {
   try {
     const { id, imageUrl } = req.body;
 
-    const question = await javaScriptTheoryQuestions.findById(id);
+    const question = await Questions.findById(id);
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
@@ -124,11 +133,11 @@ exports.deleteJavaScriptTheoryQuestionImage = async (req, res) => {
 };
 
 // ** Delete a Question and its Images **
-exports.deleteJavaScriptTheoryQuestion = async (req, res) => {
+exports.deleteQuestion = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const question = await javaScriptTheoryQuestions.findById(id);
+    const question = await Questions.findById(id);
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
     }
@@ -140,7 +149,7 @@ exports.deleteJavaScriptTheoryQuestion = async (req, res) => {
     }
 
     // Delete the question from MongoDB
-    await javaScriptTheoryQuestions.findByIdAndDelete(id);
+    await Questions.findByIdAndDelete(id);
 
     res.status(200).json({
       message: "Question and associated images deleted successfully",

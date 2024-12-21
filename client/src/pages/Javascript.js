@@ -1,16 +1,21 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   useGetAllQuestionsQuery,
   useDeleteQuestionMutation,
   useDeleteImageMutation,
   useAddQuestionMutation,
-} from "../redux/api/javascriptTheoryQuestionsApi";
+} from "../redux/api/QuestionsApi";
 import { Grid, Typography, Box, CircularProgress, Button } from "@mui/material";
 import QuestionCard from "../components/QuestionCard";
 import AddQuestionModal from "../components/AddQuestionModal";
 
-const JavaScriptTheoryPage = () => {
-  const { data, isLoading, error } = useGetAllQuestionsQuery();
+const Javascript = () => {
+  const location = useLocation();
+  const category = location.pathname.split("-")[0].replace("/", "");
+  const [questionType, setQuestionType] = useState("");
+
+  const { data, isLoading, error } = useGetAllQuestionsQuery(category);
   const [deleteQuestion] = useDeleteQuestionMutation();
   const [deleteImage] = useDeleteImageMutation();
   const [addQuestion] = useAddQuestionMutation();
@@ -57,11 +62,9 @@ const JavaScriptTheoryPage = () => {
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h5" gutterBottom sx={{ marginBottom: "20px" }}>
-          {`${
-            data?.data?.length > 0
-              ? `JavaScript Theory Questions: ${data?.data?.length}`
-              : "JavaScript Theory Questions: Coming soon"
-          }`}
+          {data?.data?.length > 0
+            ? `${category} Questions: ${data?.data?.length}`
+            : `${category} Questions: Coming soon`}
         </Typography>
         <Button
           variant="contained"
@@ -69,7 +72,7 @@ const JavaScriptTheoryPage = () => {
           onClick={() => setOpenModal(true)}
           sx={{ marginBottom: "20px" }}
         >
-          + Add JavaScript Theory Interview Question
+          + Add {category} Question
         </Button>
       </Box>
       <Grid container spacing={5}>
@@ -85,15 +88,16 @@ const JavaScriptTheoryPage = () => {
         ))}
       </Grid>
 
-      {/* Reusable Modal */}
+      {/* Add Question Modal */}
       <AddQuestionModal
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSubmit={handleAddQuestion}
-        technology="JavaScript"
+        technology={category}
+        questionType={questionType}
       />
     </Box>
   );
 };
 
-export default JavaScriptTheoryPage;
+export default Javascript;

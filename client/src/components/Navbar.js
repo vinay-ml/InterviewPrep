@@ -35,9 +35,9 @@ const Navbar = () => {
         <Box>
           <Button
             component={NavLink}
-            to="/javascript-theory"
+            to="/javascript"
             sx={
-              location.pathname === "/javascript-theory"
+              location.pathname === "/javascript"
                 ? activeLinkStyles
                 : linkStyles
             }
@@ -47,12 +47,8 @@ const Navbar = () => {
 
           <Button
             component={NavLink}
-            to="/python-theory"
-            sx={
-              location.pathname === "/python-theory"
-                ? activeLinkStyles
-                : linkStyles
-            }
+            to="/python"
+            sx={location.pathname === "/python" ? activeLinkStyles : linkStyles}
           >
             Python
           </Button>
