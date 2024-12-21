@@ -13,7 +13,6 @@ import AddQuestionModal from "../components/AddQuestionModal";
 const Javascript = () => {
   const location = useLocation();
   const category = location.pathname.split("-")[0].replace("/", "");
-  const [questionType, setQuestionType] = useState("");
 
   const { data, isLoading, error } = useGetAllQuestionsQuery(category);
   const [deleteQuestion] = useDeleteQuestionMutation();
@@ -63,8 +62,8 @@ const Javascript = () => {
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h5" gutterBottom sx={{ marginBottom: "20px" }}>
           {data?.data?.length > 0
-            ? `${category} Questions: ${data?.data?.length}`
-            : `${category} Questions: Coming soon`}
+            ? `${category} interview questions: ${data?.data?.length}`
+            : `${category} interview questions: Coming soon`}
         </Typography>
         <Button
           variant="contained"
@@ -72,7 +71,7 @@ const Javascript = () => {
           onClick={() => setOpenModal(true)}
           sx={{ marginBottom: "20px" }}
         >
-          + Add {category} Question
+          + Add {category} interview question
         </Button>
       </Box>
       <Grid container spacing={5}>
@@ -94,7 +93,6 @@ const Javascript = () => {
         onClose={() => setOpenModal(false)}
         onSubmit={handleAddQuestion}
         technology={category}
-        questionType={questionType}
       />
     </Box>
   );

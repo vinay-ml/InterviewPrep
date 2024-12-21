@@ -18,6 +18,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useLocation } from "react-router-dom";
 
 const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
   const [deletingQuestion, setDeletingQuestion] = useState(false);
@@ -26,6 +27,12 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState({});
+
+  const location = useLocation();
+  const language = location.pathname
+    .split("-")[0]
+    .replace("/", "")
+    .toLowerCase();
 
   const handleConfirmDelete = async () => {
     setConfirmingDelete(true);
@@ -85,7 +92,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index }) => {
                 Code:
               </Typography>
               <SyntaxHighlighter
-                language="javascript"
+                language={language}
                 style={dracula}
                 customStyle={{
                   background: "#1e1e1e",

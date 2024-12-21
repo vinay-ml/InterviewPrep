@@ -18,6 +18,9 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useLocation } from "react-router-dom";
 
 const AddQuestionModal = ({
   open,
@@ -33,6 +36,11 @@ const AddQuestionModal = ({
     images: [],
   },
 }) => {
+  const location = useLocation();
+  const language = location.pathname
+    .split("-")[0]
+    .replace("/", "")
+    .toLowerCase();
   const [formData, setFormData] = useState(initialData);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -95,7 +103,18 @@ const AddQuestionModal = ({
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+      <Dialog
+        open={open}
+        onClose={onClose}
+        fullWidth
+        maxWidth="md"
+        BackdropProps={{
+          sx: {
+            backdropFilter: "blur(5px)",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          },
+        }}
+      >
         {/* Loading Overlay */}
         {loading && (
           <Box
@@ -122,45 +141,9 @@ const AddQuestionModal = ({
             </Typography>
           </Box>
         )}
-        <DialogTitle>Add New {technology} Question</DialogTitle>
+        <DialogTitle>Add new {technology} interview question:</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            {/* Question Title */}
-            <TextField
-              label="Question Title"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              required
-            />
-
-            {/* Answers */}
-            <TextField
-              label="Answers (Dot-separated)"
-              name="answers"
-              value={formData.answers}
-              onChange={handleInputChange}
-              required
-            />
-
-            {/* Sample Code */}
-            <TextField
-              label="Sample Code"
-              name="sampleCode"
-              value={formData.sampleCode}
-              onChange={handleInputChange}
-              multiline
-              rows={4}
-            />
-
-            {/* Reference URLs */}
-            <TextField
-              label="Reference URLs (Comma-separated)"
-              name="referenceURLs"
-              value={formData.referenceURLs}
-              onChange={handleInputChange}
-            />
-
             {/* Question Type */}
             <FormControl fullWidth>
               <InputLabel id="question-type-label">Question Type</InputLabel>
@@ -171,10 +154,90 @@ const AddQuestionModal = ({
                 onChange={handleInputChange}
                 required
               >
-                <MenuItem value="coding">Coding</MenuItem>
-                <MenuItem value="theory">Theory</MenuItem>
+                <MenuItem value="coding">Coding question</MenuItem>
+                <MenuItem value="theory">Theory question</MenuItem>
               </Select>
             </FormControl>
+
+            {/* Question Title */}
+            <TextField
+              label="Question Title"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              required
+              multiline
+              rows={2}
+            />
+
+            {/* Answers */}
+            <TextField
+              label="Answer (use chatGPT to get small answer then paste here)"
+              name="answers"
+              multiline
+              rows={7}
+              value={formData.answers}
+              onChange={handleInputChange}
+              required
+            />
+
+            {/* Sample Code */}
+            <Box sx={{ position: "relative" }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "bold", marginBottom: "8px" }}
+              >
+                Paste/Save your code (it's live preview)
+              </Typography>
+              <TextField
+                name="sampleCode"
+                value={formData.sampleCode}
+                onChange={handleInputChange}
+                multiline
+                rows={8}
+                placeholder="Paste your code here..."
+                fullWidth
+                InputProps={{
+                  style: {
+                    background: "#1e1e1e",
+                    color: "white",
+                    fontFamily: "monospace",
+                    borderRadius: "5px",
+                    padding: "10px",
+                    fontSize: "14px",
+                    lineHeight: "1.5",
+                  },
+                }}
+                InputLabelProps={{
+                  style: { color: "#d4d4d4" }, // Optional label color
+                }}
+              />
+              {formData.sampleCode.trim() && (
+                <SyntaxHighlighter
+                  language={language}
+                  style={dracula}
+                  customStyle={{
+                    marginTop: "16px",
+                    background: "#1e1e1e",
+                    color: "#d4d4d4",
+                    borderRadius: "5px",
+                    padding: "16px",
+                    fontSize: "14px",
+                    overflowX: "auto",
+                  }}
+                >
+                  {formData.sampleCode}
+                </SyntaxHighlighter>
+              )}
+            </Box>
+
+            {/* Reference URLs */}
+            <TextField
+              label="Reference URLs (Comma-separated)"
+              name="referenceURLs"
+              value={formData.referenceURLs}
+              onChange={handleInputChange}
+            />
 
             {/* Image Previews */}
             {imagePreviews.length > 0 && (
@@ -228,9 +291,13 @@ const AddQuestionModal = ({
             <Button
               variant="outlined"
               component="label"
-              sx={{ marginTop: "10px" }}
+              sx={{
+                marginTop: "10px",
+                width: "auto",
+                alignSelf: "flex-start",
+              }}
             >
-              Upload Images
+              Upload Reference Images (Optional)
               <input
                 ref={fileInputRef}
                 type="file"
@@ -243,10 +310,16 @@ const AddQuestionModal = ({
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="secondary" disabled={loading}>
+          <Button
+            sx={{ marginRight: "30px" }}
+            onClick={onClose}
+            color="secondary"
+            disabled={loading}
+          >
             Cancel
           </Button>
           <Button
+            sx={{ marginRight: "30px" }}
             onClick={handleSubmit}
             variant="contained"
             color="primary"
