@@ -6,8 +6,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Javascript from "./pages/Javascript";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CategoryQuestions from "./pages/CategoryQuestions";
 
 const App = () => {
   return (
@@ -16,10 +16,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/javascript" replace />} />
         <Route
-          path="/javascript"
+          path="/:category"
           element={
             <ProtectedRoute>
-              <Javascript />
+              <CategoryQuestions />
             </ProtectedRoute>
           }
         />

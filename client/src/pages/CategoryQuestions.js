@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   useGetAllQuestionsQuery,
   useDeleteQuestionMutation,
@@ -20,9 +20,8 @@ import { useTheme } from "@mui/material/styles";
 import QuestionCard from "../components/QuestionCard";
 import AddQuestionModal from "../components/AddQuestionModal";
 
-const Javascript = () => {
-  const location = useLocation();
-  const category = location.pathname.split("-")[0].replace("/", "");
+const CategoryQuestions = () => {
+  const { category } = useParams(); // Dynamically get the category from the route
 
   const { data, isLoading, error } = useGetAllQuestionsQuery(category);
   const [deleteQuestion] = useDeleteQuestionMutation();
@@ -188,4 +187,4 @@ const Javascript = () => {
   );
 };
 
-export default Javascript;
+export default CategoryQuestions;
