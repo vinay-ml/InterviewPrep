@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://interview-prep-i3eu.onrender.com/api/auth",
+    baseUrl: "https://inter-view-prep.onrender.com/api/auth",
     prepareHeaders: (headers) => {
       const storedToken = localStorage.getItem("token");
       if (storedToken) {
