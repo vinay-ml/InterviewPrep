@@ -18,8 +18,9 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { jwtDecode } from "jwt-decode";
 import { useLocation } from "react-router-dom";
-import AddQuestionModal from "./AddQuestionModal"; // Import the modal
+import AddQuestionModal from "./AddQuestionModal";
 
 const QuestionCard = ({
   question,
@@ -34,7 +35,12 @@ const QuestionCard = ({
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState({});
-  const [updateModalOpen, setUpdateModalOpen] = useState(false); // State for update modal
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+
+  const token = localStorage.getItem("token");
+  const decoded = jwtDecode(token);
+  const accessCode = decoded?.accessCode || "";
+  const accessCodePrefix = accessCode.slice(0, 2); // Extract first 2 characters
 
   const location = useLocation();
   const language = location.pathname
@@ -196,21 +202,23 @@ const QuestionCard = ({
                     }))
                   }
                 />
-                <IconButton
-                  sx={{
-                    position: "absolute",
-                    top: 5,
-                    right: 5,
-                  }}
-                  onClick={() => handleOpenDialog(image)}
-                  disabled={deletingImageId === image || confirmingDelete}
-                >
-                  {deletingImageId === image ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    <DeleteIcon color="error" />
-                  )}
-                </IconButton>
+                {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" && (
+                  <IconButton
+                    sx={{
+                      position: "absolute",
+                      top: 5,
+                      right: 5,
+                    }}
+                    onClick={() => handleOpenDialog(image)}
+                    disabled={deletingImageId === image || confirmingDelete}
+                  >
+                    {deletingImageId === image ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      <DeleteIcon color="error" />
+                    )}
+                  </IconButton>
+                )}
               </Box>
             ))}
 
@@ -221,25 +229,29 @@ const QuestionCard = ({
               marginTop: "20px",
             }}
           >
-            <Button
-              variant="outlined"
-              color="primary"
-              size="small"
-              onClick={handleOpenUpdateModal}
-            >
-              Update Question
-            </Button>
-            <IconButton
-              color="secondary"
-              onClick={() => handleOpenDialog("question")}
-              disabled={deletingQuestion || confirmingDelete}
-            >
-              {deletingQuestion ? (
-                <CircularProgress size={20} />
-              ) : (
-                <DeleteIcon />
-              )}
-            </IconButton>
+            {accessCodePrefix !== "CN" && (
+              <Button
+                variant="outlined"
+                color="primary"
+                size="small"
+                onClick={handleOpenUpdateModal}
+              >
+                Update Question
+              </Button>
+            )}
+            {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" && (
+              <IconButton
+                color="secondary"
+                onClick={() => handleOpenDialog("question")}
+                disabled={deletingQuestion || confirmingDelete}
+              >
+                {deletingQuestion ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <DeleteIcon />
+                )}
+              </IconButton>
+            )}
           </div>
         </CardContent>
       </Card>
