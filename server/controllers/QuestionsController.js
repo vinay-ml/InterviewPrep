@@ -36,10 +36,10 @@ exports.addQuestion = async (req, res) => {
 
     const newQuestion = new Questions({
       title,
-      answers: answers.split("."), // Convert comma-separated string to array
+      answers: answers.split("."),
       sampleCode,
       images,
-      referenceURLs: referenceURLs.split(","), // Convert to array
+      referenceURLs: referenceURLs.split(","),
       questionType,
       category,
     });
