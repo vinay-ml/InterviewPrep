@@ -14,7 +14,9 @@ import {
   Button,
   FormControlLabel,
   Checkbox,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import QuestionCard from "../components/QuestionCard";
 import AddQuestionModal from "../components/AddQuestionModal";
 
@@ -34,6 +36,9 @@ const Javascript = () => {
     coding: true,
     theory: true,
   });
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleAddQuestion = async (formData) => {
     await addQuestion(formData);
@@ -83,13 +88,14 @@ const Javascript = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 1 }}>
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "30px",
+          marginBottom: "10px",
+          marginTop: "10px",
         }}
       >
         {/* Add Question Button */}
@@ -98,27 +104,28 @@ const Javascript = () => {
           color="primary"
           onClick={() => setOpenModal(true)}
         >
-          + Add {category} interview question
+          {isMobile ? "+ Add" : `+ Add ${category} interview question`}
         </Button>
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{
-            color: "primary.main",
-            letterSpacing: "0.05em",
-            fontSize: "24px",
-            textTransform: "capitalize",
-          }}
-        >
-          {Object.values(selectedQuestionTypes).every(
-            (isSelected) => !isSelected
-          )
-            ? `${category} interview questions: 0`
-            : filteredQuestions?.length > 0
-            ? `${category} interview questions: ${filteredQuestions.length}`
-            : `${category} interview questions: Coming soon`}
-        </Typography>
-
+        {!isMobile && (
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{
+              color: "primary.main",
+              letterSpacing: "0.05em",
+              fontSize: "24px",
+              textTransform: "capitalize",
+            }}
+          >
+            {Object.values(selectedQuestionTypes).every(
+              (isSelected) => !isSelected
+            )
+              ? `${category} interview questions: 0`
+              : filteredQuestions?.length > 0
+              ? `${category} interview questions: ${filteredQuestions.length}`
+              : `${category} interview questions: Coming soon`}
+          </Typography>
+        )}
         <Box
           sx={{
             display: "flex",
@@ -129,7 +136,7 @@ const Javascript = () => {
         >
           {/* Label for Question Type */}
           <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Question Type:
+            {isMobile ? "Type" : "Question Type"}:
           </Typography>
           {/* Checkboxes for filtering */}
           <Box sx={{ display: "flex", gap: 2 }}>
@@ -141,7 +148,7 @@ const Javascript = () => {
                   color="primary"
                 />
               }
-              label="Coding"
+              label={"Coding"}
             />
             <FormControlLabel
               control={
@@ -151,13 +158,13 @@ const Javascript = () => {
                   color="primary"
                 />
               }
-              label="Theory"
+              label={"Theory"}
             />
           </Box>
         </Box>
       </Box>
 
-      <Grid container spacing={5}>
+      <Grid container spacing={5} sx={{ p: 3 }}>
         {filteredQuestions?.map((question, index) => (
           <Grid item xs={12} md={12} key={question._id}>
             <QuestionCard
