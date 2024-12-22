@@ -40,6 +40,7 @@ const AddQuestionModal = ({
     images: [],
   },
   questionId = null,
+  accessCodePrefix,
 }) => {
   const [formData, setFormData] = useState(initialData);
   const [imagePreviews, setImagePreviews] = useState(
@@ -188,6 +189,9 @@ const AddQuestionModal = ({
             >
               <MenuItem value="coding">Coding question</MenuItem>
               <MenuItem value="theory">Theory question</MenuItem>
+              {accessCodePrefix === "AD" && (
+                <MenuItem value="notes">Notes</MenuItem>
+              )}
             </Select>
           </FormControl>
 

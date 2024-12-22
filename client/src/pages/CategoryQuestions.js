@@ -16,24 +16,30 @@ import {
   Checkbox,
   useMediaQuery,
 } from "@mui/material";
+import { jwtDecode } from "jwt-decode";
 import { useTheme } from "@mui/material/styles";
 import QuestionCard from "../components/QuestionCard";
 import AddQuestionModal from "../components/AddQuestionModal";
 
 const CategoryQuestions = () => {
-  const { category } = useParams(); // Dynamically get the category from the route
+  const { category } = useParams();
 
   const { data, isLoading, error } = useGetAllQuestionsQuery(category);
   const [deleteQuestion] = useDeleteQuestionMutation();
   const [deleteImage] = useDeleteImageMutation();
   const [addQuestion] = useAddQuestionMutation();
-
   const [openModal, setOpenModal] = useState(false);
+
+  const token = localStorage.getItem("token");
+  const decoded = jwtDecode(token);
+  const accessCode = decoded?.accessCode || "";
+  const accessCodePrefix = accessCode.slice(0, 2);
 
   // State to manage selected question types
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState({
     coding: true,
     theory: true,
+    notes: accessCodePrefix === "AD",
   });
 
   const theme = useTheme();
@@ -159,6 +165,18 @@ const CategoryQuestions = () => {
               }
               label={"Theory"}
             />
+            {accessCodePrefix === "AD" && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedQuestionTypes.notes}
+                    onChange={() => handleCheckboxChange("notes")}
+                    color="primary"
+                  />
+                }
+                label={"Notes"}
+              />
+            )}
           </Box>
         </Box>
       </Box>
@@ -182,6 +200,7 @@ const CategoryQuestions = () => {
         onClose={() => setOpenModal(false)}
         onSubmit={handleAddQuestion}
         technology={category}
+        accessCodePrefix={accessCodePrefix}
       />
     </Box>
   );
