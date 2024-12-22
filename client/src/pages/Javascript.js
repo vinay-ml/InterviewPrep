@@ -38,7 +38,7 @@ const Javascript = () => {
   });
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   const handleAddQuestion = async (formData) => {
     await addQuestion(formData);
