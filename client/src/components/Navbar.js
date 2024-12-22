@@ -46,6 +46,11 @@ const Navbar = () => {
     { text: "JavaScript", to: "/javascript" },
     { text: "Python", to: "/python" },
     { text: "SQL", to: "/sql" },
+    { text: "ReactJS", to: "/reactjs" },
+    { text: "NodeJS", to: "/nodejs" },
+    { text: "HTML", to: "/html" },
+    { text: "CSS", to: "/css" },
+    { text: "PowerBI", to: "/powerbi" },
   ];
 
   // Styles for active and inactive links
