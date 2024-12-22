@@ -20,11 +20,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { useLocation } from "react-router-dom";
 import {
   useAddQuestionMutation,
   useUpdateQuestionMutation,
 } from "../redux/api/QuestionsApi";
+import useLanguage from "../hooks/useLanguage";
 
 const AddQuestionModal = ({
   open,
@@ -41,11 +41,6 @@ const AddQuestionModal = ({
   },
   questionId = null,
 }) => {
-  const location = useLocation();
-  const language = location.pathname
-    .split("-")[0]
-    .replace("/", "")
-    .toLowerCase();
   const [formData, setFormData] = useState(initialData);
   const [imagePreviews, setImagePreviews] = useState(
     initialData.images.map((img) => ({ src: img, isUploaded: true }))
@@ -55,6 +50,7 @@ const AddQuestionModal = ({
 
   const [addQuestion] = useAddQuestionMutation();
   const [updateQuestion] = useUpdateQuestionMutation();
+  const language = useLanguage();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

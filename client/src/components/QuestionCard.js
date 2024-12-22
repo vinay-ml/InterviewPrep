@@ -21,6 +21,7 @@ import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { jwtDecode } from "jwt-decode";
 import { useLocation } from "react-router-dom";
 import AddQuestionModal from "./AddQuestionModal";
+import useLanguage from "../hooks/useLanguage";
 
 const QuestionCard = ({
   question,
@@ -40,13 +41,10 @@ const QuestionCard = ({
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
   const accessCode = decoded?.accessCode || "";
-  const accessCodePrefix = accessCode.slice(0, 2); // Extract first 2 characters
+  const accessCodePrefix = accessCode.slice(0, 2);
 
   const location = useLocation();
-  const language = location.pathname
-    .split("-")[0]
-    .replace("/", "")
-    .toLowerCase();
+  const language = useLanguage();
 
   const handleConfirmDelete = async () => {
     setConfirmingDelete(true);
