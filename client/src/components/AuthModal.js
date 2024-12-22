@@ -3,10 +3,10 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   TextField,
   Button,
   CircularProgress,
+  Box,
 } from "@mui/material";
 import { useLoginMutation } from "../redux/api/authApi";
 import { toast } from "react-toastify";
@@ -31,32 +31,57 @@ const AuthModal = ({ open, onClose, onLoginSuccess }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={(event, reason) => {
+        if (reason !== "backdropClick") {
+          onClose();
+        }
+      }}
+      maxWidth="sm"
+      fullWidth
+      BackdropProps={{
+        sx: {
+          backdropFilter: "blur(5px)",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+        },
+      }}
+    >
       <DialogTitle>Login</DialogTitle>
       <DialogContent>
         <TextField
-          label="Username"
+          label="Your name"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           fullWidth
           margin="normal"
         />
         <TextField
-          label="Access Code"
+          label="Enter Access Code or Ask Vinay"
           value={accessCode}
           onChange={(e) => setAccessCode(e.target.value)}
           fullWidth
           margin="normal"
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="secondary" disabled={loading}>
-          Cancel
-        </Button>
-        <Button onClick={handleLogin} color="primary" disabled={loading}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 2,
+        }}
+      >
+        <Button
+          variant="contained"
+          onClick={handleLogin}
+          color="primary"
+          disabled={loading}
+          sx={{ minWidth: "100px" }}
+        >
           {loading ? <CircularProgress size={20} /> : "Login"}
         </Button>
-      </DialogActions>
+      </Box>
     </Dialog>
   );
 };
