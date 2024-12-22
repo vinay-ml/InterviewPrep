@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const questionsApi = createApi({
   reducerPath: "questionsApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/questions",
+    baseUrl: "https://interview-prep-i3eu.onrender.com/api/questions",
   }),
   tagTypes: ["Questions"],
   endpoints: (builder) => ({
