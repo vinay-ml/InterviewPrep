@@ -28,6 +28,19 @@ app.use("/assets", express.static(path.join(__dirname, "assets")));
 app.use("/api/auth", authRoutes);
 app.use("/api/questions", QuestionRoutes);
 
+// Deployment
+const __dirname1 = path.resolve();
+if (process.env.NODE_ENV === "PRODUCTION") {
+  app.use(express.static(path.join(__dirname1, "/client/build")));
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname1, "client", "build", "index.html"))
+  );
+} else {
+  app.get("/", (req, res) => {
+    res.send("API is running..");
+  });
+}
+
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
