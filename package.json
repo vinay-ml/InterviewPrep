@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node server/app.js",
     "dev": "SET NODE_ENV = DEVELOPMENT& nodemon server/app.js",
-    "prod": "SET NODE_ENV = PRODUCTION& nodemon server/app.js",
+    "prod": "SET NODE_ENV=PRODUCTION& pm2 start server/app.js --name interviewprep",
+    "pm2-restart": "pm2 restart interviewprep",
+    "pm2-stop": "pm2 stop interviewprep",
+    "pm2-delete": "pm2 delete interviewprep",
+    "pm2-list": "pm2 list",
     "seeder": "node server/seeders/seeder.js"
   },
   "author": "Vinay",
