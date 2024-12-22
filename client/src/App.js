@@ -8,7 +8,6 @@ const App = () => {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<h1>Welcome to InterviewPrep</h1>} />
         <Route path="/javascript" element={<Javascript />} />
       </Routes>
     </Router>
