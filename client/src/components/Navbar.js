@@ -1,18 +1,61 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, Box, Button } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Button,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Divider,
+} from "@mui/material";
 import { NavLink, useLocation } from "react-router-dom";
+import MenuIcon from "@mui/icons-material/Menu";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const Navbar = () => {
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Close Drawer when switching to a larger screen
+  useEffect(() => {
+    if (!isMobile) {
+      setDrawerOpen(false);
+    }
+  }, [isMobile]);
+
+  const toggleDrawer = (open) => (event) => {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+    setDrawerOpen(open);
+  };
+
+  // Navigation links
+  const navLinks = [
+    { text: "JavaScript", to: "/javascript" },
+    { text: "Python", to: "/python" },
+    { text: "SQL", to: "/sql" },
+  ];
 
   // Styles for active and inactive links
   const linkStyles = {
     color: "inherit",
     textDecoration: "none",
-    fontWeight: "normal", // Changed font weight to normal
+    fontWeight: "normal",
     marginLeft: "15px",
     paddingBottom: "5px",
-    fontSize: "16px", // Optional: Adjust font size if needed
+    fontSize: "16px",
   };
 
   const activeLinkStyles = {
@@ -21,48 +64,92 @@ const Navbar = () => {
   };
 
   return (
-    <AppBar
-      position="sticky"
-      sx={{
-        zIndex: 1300,
-        backgroundColor: "#1976d2",
-      }}
-    >
-      <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          InterviewPrep
-        </Typography>
-        <Box>
-          <Button
-            component={NavLink}
-            to="/javascript"
-            sx={
-              location.pathname === "/javascript"
-                ? activeLinkStyles
-                : linkStyles
-            }
-          >
-            JavaScript
-          </Button>
+    <>
+      <AppBar
+        position="sticky"
+        sx={{
+          zIndex: 1300,
+          backgroundColor: "#1976d2",
+        }}
+      >
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            InterviewPrep
+          </Typography>
 
-          <Button
-            component={NavLink}
-            to="/python"
-            sx={location.pathname === "/python" ? activeLinkStyles : linkStyles}
-          >
-            Python
-          </Button>
+          {isMobile ? (
+            <IconButton color="inherit" edge="end" onClick={toggleDrawer(true)}>
+              <MenuIcon />
+            </IconButton>
+          ) : (
+            <Box>
+              {navLinks.map((link) => (
+                <Button
+                  key={link.text}
+                  component={NavLink}
+                  to={link.to}
+                  sx={
+                    location.pathname === link.to
+                      ? activeLinkStyles
+                      : linkStyles
+                  }
+                >
+                  {link.text}
+                </Button>
+              ))}
+            </Box>
+          )}
+        </Toolbar>
+      </AppBar>
 
-          <Button
-            component={NavLink}
-            to="/sql"
-            sx={location.pathname === "/sql" ? activeLinkStyles : linkStyles}
+      {/* Drawer for Mobile Devices */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={toggleDrawer(false)}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: 250,
+          },
+        }}
+      >
+        <Box
+          role="presentation"
+          onClick={toggleDrawer(false)}
+          onKeyDown={toggleDrawer(false)}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              padding: "16px",
+              textAlign: "center",
+              backgroundColor: "#1976d2",
+              color: "#fff",
+            }}
           >
-            SQL
-          </Button>
+            Navigation
+          </Typography>
+          <Divider />
+          <List>
+            {navLinks.map((link) => (
+              <ListItem key={link.text} disablePadding>
+                <ListItemButton
+                  component={NavLink}
+                  to={link.to}
+                  sx={{
+                    "&.active": {
+                      backgroundColor: "#e3f2fd",
+                    },
+                  }}
+                >
+                  <ListItemText primary={link.text} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
         </Box>
-      </Toolbar>
-    </AppBar>
+      </Drawer>
+    </>
   );
 };
 

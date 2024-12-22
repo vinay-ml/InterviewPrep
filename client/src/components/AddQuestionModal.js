@@ -222,7 +222,11 @@ const AddQuestionModal = ({
           <Box sx={{ position: "relative" }}>
             <Typography
               variant="body2"
-              sx={{ fontWeight: "bold", marginBottom: "8px" }}
+              sx={{
+                fontWeight: "bold",
+                marginBottom: "8px",
+                color: "text.secondary",
+              }}
             >
               Code (use chatGPT to get the Code then paste here)
             </Typography>
@@ -247,24 +251,33 @@ const AddQuestionModal = ({
               }}
             />
             {formData.sampleCode.trim() && (
-              <SyntaxHighlighter
-                language={language}
-                style={dracula}
-                customStyle={{
-                  marginTop: "16px",
-                  background: "#1e1e1e",
-                  color: "#d4d4d4",
-                  borderRadius: "5px",
-                  padding: "16px",
-                  fontSize: "14px",
-                  overflowX: "auto",
-                }}
-              >
-                {formData.sampleCode}
-              </SyntaxHighlighter>
+              <Box sx={{ marginTop: "16px" }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: "text.secondary",
+                    // fontWeight: "bold",
+                  }}
+                >
+                  Live preview:
+                </Typography>
+                <SyntaxHighlighter
+                  language={language}
+                  style={dracula}
+                  customStyle={{
+                    background: "#1e1e1e",
+                    color: "#d4d4d4",
+                    borderRadius: "5px",
+                    padding: "16px",
+                    fontSize: "14px",
+                    overflowX: "auto",
+                  }}
+                >
+                  {formData.sampleCode}
+                </SyntaxHighlighter>
+              </Box>
             )}
           </Box>
-
           {/* Reference URLs */}
           <TextField
             label="Reference URLs (with Comma-separation can add multiple URLs)"
