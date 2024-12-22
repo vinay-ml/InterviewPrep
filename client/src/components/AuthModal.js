@@ -47,7 +47,6 @@ const AuthModal = ({ open, onClose, onLoginSuccess }) => {
         },
       }}
     >
-      <DialogTitle>Login</DialogTitle>
       <DialogContent>
         <TextField
           label="Your name"
