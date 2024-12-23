@@ -24,7 +24,8 @@ import AddQuestionModal from "../components/AddQuestionModal";
 const CategoryQuestions = () => {
   const { category } = useParams();
 
-  const { data, isLoading, error } = useGetAllQuestionsQuery(category);
+  const { data, isLoading, error, isFetching } =
+    useGetAllQuestionsQuery(category);
   const [deleteQuestion] = useDeleteQuestionMutation();
   const [deleteImage] = useDeleteImageMutation();
   const [addQuestion] = useAddQuestionMutation();
@@ -39,7 +40,7 @@ const CategoryQuestions = () => {
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState({
     coding: true,
     theory: true,
-    notes: accessCodePrefix === "AD",
+    notes: false,
   });
 
   const theme = useTheme();
@@ -68,6 +69,21 @@ const CategoryQuestions = () => {
   const filteredQuestions = data?.data.filter(
     (question) => selectedQuestionTypes[question.questionType]
   );
+
+  if (isFetching) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "70vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   if (isLoading) {
     return (
