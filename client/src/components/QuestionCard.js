@@ -37,6 +37,8 @@ const QuestionCard = ({
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState({});
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [showCode, setShowCode] = useState(false);
+  const [showImage, setShowImage] = useState({});
 
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
@@ -91,7 +93,7 @@ const QuestionCard = ({
       <Card elevation={8} sx={{ borderRadius: "10px", overflow: "hidden" }}>
         <CardContent>
           <Typography variant="h5">
-            {`Q${index + 1}: ${question.title}`}
+            Q{index + 1}: {question.title}
           </Typography>
 
           {hasAnswers && (
@@ -106,7 +108,7 @@ const QuestionCard = ({
                         fontSize: "18px",
                       }}
                     >
-                      {`• ${answer}`}
+                      • {answer}
                     </ListItem>
                   )
               )}
@@ -114,27 +116,30 @@ const QuestionCard = ({
           )}
           {question.sampleCode && question.sampleCode.trim() && (
             <>
-              <Typography
-                variant="body2"
-                gutterBottom
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setShowCode((prev) => !prev)}
                 sx={{ marginTop: "10px" }}
               >
-                Code:
-              </Typography>
-              <SyntaxHighlighter
-                language={language}
-                style={dracula}
-                customStyle={{
-                  background: "#1e1e1e",
-                  color: "#d4d4d4",
-                  borderRadius: "5px",
-                  padding: "20px",
-                  fontSize: "14px",
-                  overflowX: "auto",
-                }}
-              >
-                {question.sampleCode}
-              </SyntaxHighlighter>
+                {showCode ? "Hide Code" : "Show Me Code"}
+              </Button>
+              {showCode && (
+                <SyntaxHighlighter
+                  language={language}
+                  style={dracula}
+                  customStyle={{
+                    background: "#1e1e1e",
+                    color: "#d4d4d4",
+                    borderRadius: "5px",
+                    padding: "20px",
+                    fontSize: "14px",
+                    overflowX: "auto",
+                  }}
+                >
+                  {question.sampleCode}
+                </SyntaxHighlighter>
+              )}
             </>
           )}
 
@@ -164,6 +169,7 @@ const QuestionCard = ({
                 )}
               </>
             )}
+
           {question.images &&
             question.images.length > 0 &&
             question.images.map((image, i) => (
@@ -175,38 +181,36 @@ const QuestionCard = ({
                   marginBottom: "20px",
                 }}
               >
-                {!imageLoaded[image] && (
-                  <Skeleton
-                    variant="rectangular"
-                    width="100%"
-                    height={200}
-                    animation="wave"
-                    sx={{ borderRadius: "5px" }}
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() =>
+                    setShowImage((prev) => ({ ...prev, [image]: !prev[image] }))
+                  }
+                  sx={{ marginBottom: "10px" }}
+                >
+                  {showImage[image] ? "Hide Image" : "Show Me Image"}
+                </Button>
+                {showImage[image] && (
+                  <img
+                    src={image}
+                    alt={`Visual representation for question ${index + 1}`}
+                    style={{
+                      width: "100%",
+                      borderRadius: "5px",
+                      objectFit: "cover",
+                    }}
+                    onLoad={() =>
+                      setImageLoaded((prev) => ({
+                        ...prev,
+                        [image]: true,
+                      }))
+                    }
                   />
                 )}
-                <img
-                  src={image}
-                  alt={`Visual representation for question ${index + 1}`}
-                  style={{
-                    width: "100%",
-                    borderRadius: "5px",
-                    objectFit: "cover",
-                    display: imageLoaded[image] ? "block" : "none",
-                  }}
-                  onLoad={() =>
-                    setImageLoaded((prev) => ({
-                      ...prev,
-                      [image]: true,
-                    }))
-                  }
-                />
                 {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" && (
                   <IconButton
-                    sx={{
-                      position: "absolute",
-                      top: 5,
-                      right: 5,
-                    }}
+                    sx={{ position: "absolute", top: 5, right: 5 }}
                     onClick={() => handleOpenDialog(image)}
                     disabled={deletingImageId === image || confirmingDelete}
                   >
@@ -255,22 +259,14 @@ const QuestionCard = ({
       </Card>
 
       <Backdrop
-        sx={{
-          color: "#fff",
-          backdropFilter: "blur(5px)",
-        }}
+        sx={{ color: "#fff", backdropFilter: "blur(5px)" }}
         open={openDialog}
       >
         <Dialog
           open={openDialog}
           onClose={() => setOpenDialog(false)}
           aria-labelledby="delete-confirmation-dialog"
-          sx={{
-            "& .MuiDialog-paper": {
-              borderRadius: "10px",
-              elevation: 8,
-            },
-          }}
+          sx={{ "& .MuiDialog-paper": { borderRadius: "10px", elevation: 8 } }}
         >
           <DialogTitle id="delete-confirmation-dialog">
             Are you sure you want to delete this{" "}
