@@ -36,7 +36,7 @@ exports.addQuestion = async (req, res) => {
 
     const newQuestion = new Questions({
       title,
-      answers: answers.split(","),
+      answers: answers.split(",,"),
       sampleCode,
       images,
       referenceURLs: referenceURLs.split(","),
@@ -71,7 +71,7 @@ exports.updateQuestion = async (req, res) => {
 
     // Update fields
     question.title = title || question.title;
-    question.answers = answers ? answers.split(",") : question.answers;
+    question.answers = answers ? answers.split(",,") : question.answers;
     question.sampleCode = sampleCode || question.sampleCode;
     question.referenceURLs = referenceURLs
       ? referenceURLs.split(",")
