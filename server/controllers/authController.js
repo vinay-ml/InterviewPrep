@@ -67,7 +67,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { id: codeEntry._id, accessCode: codeEntry.accessCode, username },
       process.env.JWT_SECRET,
-      { expiresIn: "60d" }
+      { expiresIn: "30d" }
     );
 
     res.status(200).json({ message: "Access granted", token });
