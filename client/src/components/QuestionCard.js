@@ -14,6 +14,7 @@ import {
   DialogActions,
   Backdrop,
   Skeleton,
+  Paper,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -89,10 +90,17 @@ const QuestionCard = ({
     question.answers && question.answers.some((ans) => ans.trim() !== "");
 
   return (
-    <>
-      <Card elevation={8} sx={{ borderRadius: "10px", overflow: "hidden" }}>
+    <Paper elevation={24} sx={{ borderRadius: "10px" }}>
+      <Card
+        elevation={8}
+        sx={{
+          borderRadius: "10px",
+          overflow: "hidden",
+          backgroundColor: "#e0e0e0",
+        }}
+      >
         <CardContent>
-          <Typography variant="h5">
+          <Typography variant="h6" sx={{ opacity: "90%" }}>
             Q{index + 1}: {question.title}
           </Typography>
 
@@ -117,7 +125,7 @@ const QuestionCard = ({
           {question.sampleCode && question.sampleCode.trim() && (
             <>
               <Button
-                variant="outlined"
+                variant="contained"
                 size="small"
                 onClick={() => setShowCode((prev) => !prev)}
                 sx={{ marginTop: "10px" }}
@@ -303,7 +311,7 @@ const QuestionCard = ({
         questionId={question._id}
         initialData={question}
       />
-    </>
+    </Paper>
   );
 };
 

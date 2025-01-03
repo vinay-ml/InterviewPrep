@@ -109,7 +109,7 @@ const CategoryQuestions = () => {
   }
 
   return (
-    <Box sx={{ p: 1 }}>
+    <Box sx={{ p: 1, backgroundColor: "#e0e0e0 " }}>
       <Box
         sx={{
           display: "flex",
@@ -156,7 +156,7 @@ const CategoryQuestions = () => {
           }}
         >
           {/* Label for Question Type */}
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+          <Typography variant="body1">
             {isMobile ? "Type" : "Question Type"}:
           </Typography>
           {/* Checkboxes for filtering */}
