@@ -24,7 +24,6 @@ const Navbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Close Drawer when switching to a larger screen
   useEffect(() => {
     if (!isMobile) {
       setDrawerOpen(false);
@@ -41,7 +40,6 @@ const Navbar = () => {
     setDrawerOpen(open);
   };
 
-  // Navigation links
   const navLinks = [
     { text: "JavaScript", to: "/javascript" },
     { text: "Python", to: "/python" },
@@ -53,7 +51,6 @@ const Navbar = () => {
     { text: "PowerBI", to: "/powerbi" },
   ];
 
-  // Styles for active and inactive links
   const linkStyles = {
     color: "inherit",
     textDecoration: "none",
@@ -78,7 +75,16 @@ const Navbar = () => {
         }}
       >
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{ flexGrow: 1 }}
+            component={NavLink}
+            to="/"
+            style={{
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
             InterviewPrep
           </Typography>
 
@@ -107,7 +113,6 @@ const Navbar = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Drawer for Mobile Devices */}
       <Drawer
         anchor="right"
         open={drawerOpen}
