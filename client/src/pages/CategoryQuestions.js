@@ -77,7 +77,8 @@ const CategoryQuestions = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "70vh",
+          minHeight: "100vh",
+          backgroundColor: "#e0e0e0 ",
         }}
       >
         <CircularProgress />
@@ -92,7 +93,8 @@ const CategoryQuestions = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "70vh",
+          minHeight: "100vh",
+          backgroundColor: "#e0e0e0 ",
         }}
       >
         <CircularProgress />
