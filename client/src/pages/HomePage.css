@@ -1,0 +1,15 @@
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.centered-image {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+}
