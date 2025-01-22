@@ -63,11 +63,11 @@ exports.login = async (req, res) => {
       await codeEntry.save();
     }
 
-    // Generate JWT Token (Expires in 60 days)
+    // Generate JWT Token (Expires in 15 days)
     const token = jwt.sign(
       { id: codeEntry._id, accessCode: codeEntry.accessCode, username },
       process.env.JWT_SECRET,
-      { expiresIn: "30d" }
+      { expiresIn: "15d" }
     );
 
     res.status(200).json({ message: "Access granted", token });

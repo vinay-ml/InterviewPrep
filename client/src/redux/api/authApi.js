@@ -34,7 +34,7 @@ export const authApi = createApi({
         try {
           const { data } = await queryFulfilled;
           const now = new Date().getTime();
-          const expiry = now + 30 * 24 * 60 * 60 * 1000;
+          const expiry = now + 15 * 24 * 60 * 60 * 1000;
           const tokenData = { token: data.token, expiry };
           localStorage.setItem("token", JSON.stringify(tokenData));
         } catch (error) {

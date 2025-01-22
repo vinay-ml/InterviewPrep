@@ -105,23 +105,32 @@ const QuestionCard = ({
           </Typography>
 
           {hasAnswers && (
-            <List>
+            <List
+              component="ul"
+              sx={{
+                listStyleType: "disc",
+                paddingLeft: "46px",
+                fontSize: "18px",
+              }}
+            >
               {question.answers.map(
                 (answer, i) =>
                   answer.trim() && (
                     <ListItem
                       key={i}
+                      component="li"
                       sx={{
-                        paddingLeft: "16px",
-                        fontSize: "18px",
+                        display: "list-item",
+                        paddingLeft: "1px",
                       }}
                     >
-                      • {answer}
+                      {answer}
                     </ListItem>
                   )
               )}
             </List>
           )}
+
           {question.sampleCode && question.sampleCode.trim() && (
             <>
               <Button
