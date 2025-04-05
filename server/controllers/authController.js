@@ -12,7 +12,7 @@ exports.updateAccessCodes = async () => {
       lastUpdated: { $gte: today },
     });
     if (existingCode) {
-      console.log("Access codes are already updated for today.");
+      // console.log("Access codes are already updated for today.");
       return;
     }
 
@@ -20,7 +20,7 @@ exports.updateAccessCodes = async () => {
     const codes = await AccessCode.find();
 
     if (!codes.length) {
-      console.log("No access codes found in the database.");
+      // console.log("No access codes found in the database.");
       return;
     }
 
@@ -32,7 +32,7 @@ exports.updateAccessCodes = async () => {
       await code.save();
     }
 
-    console.log("Access codes updated successfully for today.");
+    // console.log("Access codes updated successfully for today.");
   } catch (error) {
     console.error("Error updating access codes:", error.message);
   }

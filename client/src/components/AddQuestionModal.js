@@ -52,7 +52,6 @@ const AddQuestionModal = ({
   const [addQuestion] = useAddQuestionMutation();
   const [updateQuestion] = useUpdateQuestionMutation();
   const language = useLanguage();
-  console.log(language);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
