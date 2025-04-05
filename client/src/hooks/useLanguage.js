@@ -12,6 +12,8 @@ const useLanguage = () => {
     html: "html",
     css: "css",
     powerbi: "sql",
+    "genai with js": "javascript",
+    "genai with py": "python",
   };
 
   return languageMapping[category?.toLowerCase()] || "javascript";

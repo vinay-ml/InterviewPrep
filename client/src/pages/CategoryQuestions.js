@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   useGetAllQuestionsQuery,
@@ -40,11 +40,19 @@ const CategoryQuestions = () => {
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState({
     coding: true,
     theory: true,
-    notes: false,
+    notes: true,
   });
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+
+  useEffect(() => {
+    setSelectedQuestionTypes({
+      coding: true,
+      theory: true,
+      notes: true,
+    });
+  }, [category]);
 
   const handleAddQuestion = async (formData) => {
     await addQuestion(formData);
@@ -183,23 +191,28 @@ const CategoryQuestions = () => {
               }
               label={"Theory"}
             />
-            {accessCodePrefix === "AD" && (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedQuestionTypes.notes}
-                    onChange={() => handleCheckboxChange("notes")}
-                    color="primary"
-                  />
-                }
-                label={"Notes"}
-              />
-            )}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={selectedQuestionTypes.notes}
+                  onChange={() => handleCheckboxChange("notes")}
+                  color="primary"
+                />
+              }
+              label={"Notes"}
+            />
           </Box>
         </Box>
       </Box>
 
-      <Grid container spacing={5} sx={{ p: 3 }}>
+      <Grid
+        container
+        spacing={5}
+        sx={{
+          p: { xs: 0, md: 3 },
+          pt: { xs: 2, md: 3 },
+        }}
+      >
         {filteredQuestions?.map((question, index) => (
           <Grid item xs={12} md={12} key={question._id}>
             <QuestionCard

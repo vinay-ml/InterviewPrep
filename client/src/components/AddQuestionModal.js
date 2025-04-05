@@ -52,6 +52,7 @@ const AddQuestionModal = ({
   const [addQuestion] = useAddQuestionMutation();
   const [updateQuestion] = useUpdateQuestionMutation();
   const language = useLanguage();
+  console.log(language);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -172,7 +173,7 @@ const AddQuestionModal = ({
       )}
       <DialogTitle>
         {mode === "add"
-          ? `Add new ${technology} interview question`
+          ? `Add new ${technology} interview question or Notes`
           : `Update this ${technology} interview question`}
       </DialogTitle>
       <DialogContent>

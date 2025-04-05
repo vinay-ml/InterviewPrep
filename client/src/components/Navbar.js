@@ -42,7 +42,9 @@ const Navbar = () => {
 
   const navLinks = [
     { text: "JavaScript", to: "/javascript" },
+    { text: "GenAI with JS", to: "/GenAI with JS" },
     { text: "Python", to: "/python" },
+    { text: "GenAI with PY", to: "/GenAI with PY" },
     { text: "SQL", to: "/sql" },
     { text: "ReactJS", to: "/reactjs" },
     { text: "NodeJS", to: "/nodejs" },

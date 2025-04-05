@@ -100,7 +100,13 @@ const QuestionCard = ({
         }}
       >
         <CardContent>
-          <Typography variant="h6" sx={{ opacity: "90%" }}>
+          <Typography
+            sx={{
+              opacity: "90%",
+              fontSize: { xs: "1rem", sm: "1.1rem", md: "1.3rem" },
+              fontWeight: 500,
+            }}
+          >
             Q{index + 1}: {question.title}
           </Typography>
 
@@ -109,8 +115,7 @@ const QuestionCard = ({
               component="ul"
               sx={{
                 listStyleType: "disc",
-                paddingLeft: "46px",
-                fontSize: "18px",
+                paddingLeft: { xs: "16px", sm: "24px", md: "28px" },
               }}
             >
               {question.answers.map(
@@ -121,7 +126,8 @@ const QuestionCard = ({
                       component="li"
                       sx={{
                         display: "list-item",
-                        paddingLeft: "1px",
+                        paddingLeft: "0px",
+                        fontSize: { xs: "0.95rem", sm: "1rem", md: "1.2rem" },
                       }}
                     >
                       {answer}
