@@ -254,7 +254,7 @@ const QuestionCard = ({
               marginTop: "20px",
             }}
           >
-            {accessCodePrefix !== "CN" && (
+            {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" && (
               <Button
                 variant="outlined"
                 color="primary"
