@@ -166,11 +166,11 @@ const CategoryQuestions = () => {
           }}
         >
           {/* Label for Question Type */}
-          <Typography variant="body1">
+          {/* <Typography variant="body1">
             {isMobile ? "Type" : "Question Type"}:
-          </Typography>
+          </Typography> */}
           {/* Checkboxes for filtering */}
-          <Box sx={{ display: "flex", gap: 2 }}>
+          <Box sx={{ display: "flex", gap: 0, mr: -1 }}>
             <FormControlLabel
               control={
                 <Checkbox
