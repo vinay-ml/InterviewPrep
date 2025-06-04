@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === "PRODUCTION") {
     res.sendFile(path.resolve(__dirname1, "client", "build", "index.html"))
   );
 } else {
-  app.get("/", (req, res) => {
+  app.get("/api/test", (req, res) => {
     res.send("API is running..");
   });
 }
