@@ -25,9 +25,26 @@ exports.updateAccessCodes = async () => {
     }
 
     // Append today's date to the existing access codes
-    const day = new Date().getDate().toString().padStart(2, "0");
+    const date = new Date();
+    const reversedDate = date
+      .getDate()
+      .toString()
+      .padStart(2, "0")
+      .split("")
+      .reverse()
+      .join("");
+    const reversedMonth = (date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")
+      .split("")
+      .reverse()
+      .join("");
+
     for (const code of codes) {
-      code.accessCode = `${code.accessCode.slice(0, -2)}${day}`;
+      code.accessCode = `${code.accessCode.slice(
+        0,
+        2
+      )}${reversedDate}${reversedMonth}`;
       code.lastUpdated = today;
       await code.save();
     }
@@ -67,7 +84,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { id: codeEntry._id, accessCode: codeEntry.accessCode, username },
       process.env.JWT_SECRET,
-      { expiresIn: "15d" }
+      { expiresIn: "10d" }
     );
 
     res.status(200).json({ message: "Access granted", token });
