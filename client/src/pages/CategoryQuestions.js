@@ -20,6 +20,7 @@ import { jwtDecode } from "jwt-decode";
 import { useTheme } from "@mui/material/styles";
 import QuestionCard from "../components/QuestionCard";
 import AddQuestionModal from "../components/AddQuestionModal";
+import OnlineUsers from "./OnlineUsers";
 
 const CategoryQuestions = () => {
   const { category } = useParams();
@@ -36,7 +37,9 @@ const CategoryQuestions = () => {
   const accessCode = decoded?.accessCode || "";
   const accessCodePrefix = accessCode.slice(0, 2);
 
-  // State to manage selected question types
+  const username = decoded?.username || "Guest";
+  console.log(username);
+
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState({
     coding: true,
     theory: true,
@@ -78,23 +81,7 @@ const CategoryQuestions = () => {
     (question) => selectedQuestionTypes[question.questionType]
   );
 
-  if (isFetching) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          backgroundColor: "#e0e0e0 ",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (isLoading) {
+  if (isFetching || isLoading) {
     return (
       <Box
         sx={{
@@ -129,7 +116,6 @@ const CategoryQuestions = () => {
           marginTop: "10px",
         }}
       >
-        {/* Add Question Button */}
         <Button
           variant="contained"
           color="primary"
@@ -165,11 +151,6 @@ const CategoryQuestions = () => {
             alignItems: "center",
           }}
         >
-          {/* Label for Question Type */}
-          {/* <Typography variant="body1">
-            {isMobile ? "Type" : "Question Type"}:
-          </Typography> */}
-          {/* Checkboxes for filtering */}
           <Box sx={{ display: "flex", gap: 0, mr: -1 }}>
             <FormControlLabel
               control={
@@ -225,7 +206,6 @@ const CategoryQuestions = () => {
         ))}
       </Grid>
 
-      {/* Add Question Modal */}
       <AddQuestionModal
         open={openModal}
         onClose={() => setOpenModal(false)}
