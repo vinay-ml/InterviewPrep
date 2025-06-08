@@ -1,11 +1,5 @@
-import React, { useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CategoryQuestions from "./pages/CategoryQuestions";
@@ -13,7 +7,7 @@ import HomePage from "./pages/HomePage";
 import OnlineUsers from "./pages/OnlineUsers";
 import { jwtDecode } from "jwt-decode";
 
-const AppRoutes = () => {
+const App = () => {
   const token = localStorage.getItem("token");
   let username = "Guest";
 
@@ -25,22 +19,10 @@ const AppRoutes = () => {
     }
   }
 
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    const navEntry = window.performance.getEntriesByType("navigation")[0];
-    const isHardReload = navEntry?.type === "reload";
-
-    if (isHardReload && location.pathname !== "/") {
-      navigate("/");
-    }
-  }, []);
-
   return (
-    <>
+    <Router>
       <Navbar />
-      <OnlineUsers username={username} />
+      <OnlineUsers username={username} /> {/* ✅ Always rendered */}
       <Routes>
         <Route
           path="/"
@@ -59,14 +41,8 @@ const AppRoutes = () => {
           }
         />
       </Routes>
-    </>
+    </Router>
   );
 };
-
-const App = () => (
-  <Router>
-    <AppRoutes />
-  </Router>
-);
 
 export default App;
