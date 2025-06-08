@@ -87,7 +87,7 @@ exports.login = async (req, res) => {
       { expiresIn: "10d" }
     );
 
-    res.status(200).json({ message: "Access granted", token });
+    res.status(200).json({ message: "Access granted", token, username });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
