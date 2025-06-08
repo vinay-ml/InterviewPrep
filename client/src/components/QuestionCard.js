@@ -325,6 +325,7 @@ const QuestionCard = ({
         mode="update"
         questionId={question._id}
         initialData={question}
+        accessCodePrefix={accessCodePrefix}
       />
     </Paper>
   );
