@@ -58,22 +58,22 @@ if (process.env.NODE_ENV === "PRODUCTION") {
 // ✅ Socket.IO logic for tracking online users
 let onlineUsers = {};
 
-io.on("connection", (socket) => {
-  console.log("🟢 New client connected:", socket.id);
+// io.on("connection", (socket) => {
+//   console.log("🟢 New client connected:", socket.id);
 
-  socket.on("user-online", ({ username }) => {
-    if (username) {
-      onlineUsers[socket.id] = username;
-      io.emit("online-users", Object.values(onlineUsers));
-    }
-  });
+//   socket.on("user-online", ({ username }) => {
+//     if (username) {
+//       onlineUsers[socket.id] = username;
+//       io.emit("online-users", Object.values(onlineUsers));
+//     }
+//   });
 
-  socket.on("disconnect", () => {
-    console.log("🔴 Client disconnected:", socket.id);
-    delete onlineUsers[socket.id];
-    io.emit("online-users", Object.values(onlineUsers));
-  });
-});
+//   socket.on("disconnect", () => {
+//     console.log("🔴 Client disconnected:", socket.id);
+//     delete onlineUsers[socket.id];
+//     io.emit("online-users", Object.values(onlineUsers));
+//   });
+// });
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
