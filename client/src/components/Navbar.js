@@ -72,8 +72,10 @@ const Navbar = () => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
+  // Query param (number)
   const questionCount = location.search ? location.search.replace("?", "") : "";
 
+  // Immediate navigation handler for both AppBar and Drawer
   const handleNavLinkClick = (to) => (event) => {
     event.preventDefault();
     navigate(to, { replace: true });
@@ -110,7 +112,8 @@ const Navbar = () => {
             >
               InterviewPrep
             </NavLink>
-            {currentSection && (
+            {/* Only display the badge if query param (questionCount) exists */}
+            {currentSection && questionCount && (
               <Typography
                 variant="h6"
                 component="span"
@@ -124,8 +127,8 @@ const Navbar = () => {
                   borderRadius: "6px",
                 }}
               >
-                / {capitalizeFirstLetter(decodeURIComponent(currentSection))}
-                {questionCount && `: ${questionCount}`}
+                / {capitalizeFirstLetter(decodeURIComponent(currentSection))}:{" "}
+                {questionCount}
               </Typography>
             )}
           </Typography>
