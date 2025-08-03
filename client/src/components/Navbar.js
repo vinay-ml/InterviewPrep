@@ -4,7 +4,6 @@ import {
   Toolbar,
   Typography,
   Box,
-  Button,
   IconButton,
   Drawer,
   List,
@@ -42,14 +41,20 @@ const Navbar = () => {
 
   const navLinks = [
     { text: "JavaScript", to: "/javascript" },
-    { text: "GenAI with JS", to: "/GenAI with JS" },
-    { text: "Python", to: "/python" },
-    { text: "GenAI with PY", to: "/GenAI with PY" },
-    { text: "SQL", to: "/sql" },
     { text: "ReactJS", to: "/reactjs" },
-    { text: "NodeJS", to: "/nodejs" },
     { text: "HTML", to: "/html" },
     { text: "CSS", to: "/css" },
+    { text: "NodeJS", to: "/nodejs" },
+    { text: "SQL", to: "/sql" },
+    { text: "Sequelize", to: "/sequelize" },
+    { text: "Mongodb", to: "/mongodb" },
+    { text: "Redis ", to: "/redis " },
+    { text: "RabbitMQ ", to: "/rabbitMQ " },
+    { text: "Kafka ", to: "/kafka " },
+    { text: "Python", to: "/python" },
+    { text: "GenAI with JS", to: "/GenAI with JS" },
+    { text: "GenAI with PY", to: "/GenAI with PY" },
+    { text: "System design", to: "/system design" },
     { text: "PowerBI", to: "/powerbi" },
   ];
 
@@ -67,6 +72,21 @@ const Navbar = () => {
     borderBottom: "2px solid #fff",
   };
 
+  // Extract last segment from path and capitalize first letter
+  const pathName = location.pathname;
+  const pathSegments = pathName.replace(/^\/+|\/+$/g, "").split("/");
+  const currentSection =
+    pathSegments.length > 0 && pathSegments[0] !== ""
+      ? pathSegments[pathSegments.length - 1]
+      : "";
+
+  const capitalizeFirstLetter = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  const questionCount = location.search ? location.search.replace("?", "") : "";
+
   return (
     <>
       <AppBar
@@ -74,12 +94,15 @@ const Navbar = () => {
         sx={{
           zIndex: 1300,
           backgroundColor: "#1976d2",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "space-between",
         }}
       >
         <Toolbar>
           <Typography
             variant="h6"
-            sx={{ flexGrow: 1 }}
+            sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}
             component={NavLink}
             to="/"
             style={{
@@ -88,30 +111,29 @@ const Navbar = () => {
             }}
           >
             InterviewPrep
+            {currentSection && (
+              <Typography
+                variant="h6"
+                component="span"
+                sx={{
+                  ml: 1,
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  color: "#fff",
+                  background: "#1565c0",
+                  px: 1,
+                  borderRadius: "6px",
+                }}
+              >
+                / {capitalizeFirstLetter(decodeURIComponent(currentSection))}
+                {questionCount && `: ${questionCount}`}
+              </Typography>
+            )}
           </Typography>
 
-          {isMobile ? (
-            <IconButton color="inherit" edge="end" onClick={toggleDrawer(true)}>
-              <MenuIcon />
-            </IconButton>
-          ) : (
-            <Box>
-              {navLinks.map((link) => (
-                <Button
-                  key={link.text}
-                  component={NavLink}
-                  to={link.to}
-                  sx={
-                    location.pathname === link.to
-                      ? activeLinkStyles
-                      : linkStyles
-                  }
-                >
-                  {link.text}
-                </Button>
-              ))}
-            </Box>
-          )}
+          <IconButton color="inherit" edge="end" onClick={toggleDrawer(true)}>
+            <MenuIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   useGetAllQuestionsQuery,
   useDeleteQuestionMutation,
@@ -24,6 +24,7 @@ import OnlineUsers from "./OnlineUsers";
 
 const CategoryQuestions = () => {
   const { category } = useParams();
+  const navigate = useNavigate();
 
   const { data, isLoading, error, isFetching } =
     useGetAllQuestionsQuery(category);
@@ -81,6 +82,14 @@ const CategoryQuestions = () => {
     (question) => selectedQuestionTypes[question.questionType]
   );
 
+  // --- URL update with filteredQuestions length ---
+  useEffect(() => {
+    if (category && filteredQuestions) {
+      navigate(`/${category}?${filteredQuestions.length}`, { replace: true });
+    }
+  }, [category, filteredQuestions?.length, navigate]);
+  // ------------------------------------------------
+
   if (isFetching || isLoading) {
     return (
       <Box
@@ -123,7 +132,7 @@ const CategoryQuestions = () => {
         >
           {isMobile ? "+ Add" : `+ Add ${category} interview question`}
         </Button>
-        {!isMobile && (
+        {/* {!isMobile && (
           <Typography
             variant="h5"
             gutterBottom
@@ -142,7 +151,7 @@ const CategoryQuestions = () => {
               ? `${category} interview questions: ${filteredQuestions.length}`
               : `${category} interview questions: Coming soon`}
           </Typography>
-        )}
+        )} */}
         <Box
           sx={{
             display: "flex",

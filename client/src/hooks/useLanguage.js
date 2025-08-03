@@ -14,6 +14,12 @@ const useLanguage = () => {
     powerbi: "sql",
     "genai with js": "javascript",
     "genai with py": "python",
+    sequelize: "javascript",
+    mongodb: "javascript",
+    rabbitMQ: "javascript",
+    Redis: "javascript",
+    kafka: "javascript",
+    "System design": "javascript",
   };
 
   return languageMapping[category?.toLowerCase()] || "javascript";
