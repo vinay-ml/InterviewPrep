@@ -12,7 +12,7 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -22,6 +22,7 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isMobile) {
@@ -58,21 +59,7 @@ const Navbar = () => {
     { text: "PowerBI", to: "/powerbi" },
   ];
 
-  const linkStyles = {
-    color: "inherit",
-    textDecoration: "none",
-    fontWeight: "normal",
-    marginLeft: "15px",
-    paddingBottom: "5px",
-    fontSize: "16px",
-  };
-
-  const activeLinkStyles = {
-    ...linkStyles,
-    borderBottom: "2px solid #fff",
-  };
-
-  // Extract last segment from path and capitalize first letter
+  // Path and current section extraction
   const pathName = location.pathname;
   const pathSegments = pathName.replace(/^\/+|\/+$/g, "").split("/");
   const currentSection =
@@ -87,6 +74,12 @@ const Navbar = () => {
 
   const questionCount = location.search ? location.search.replace("?", "") : "";
 
+  const handleNavLinkClick = (to) => (event) => {
+    event.preventDefault();
+    navigate(to, { replace: true });
+    setDrawerOpen(false); // For mobile drawer
+  };
+
   return (
     <>
       <AppBar
@@ -100,17 +93,23 @@ const Navbar = () => {
         }}
       >
         <Toolbar>
+          {/* AppBar navigation links */}
           <Typography
             variant="h6"
             sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}
-            component={NavLink}
-            to="/"
-            style={{
-              color: "inherit",
-              textDecoration: "none",
-            }}
+            component="div"
+            style={{ color: "inherit", textDecoration: "none" }}
           >
-            InterviewPrep
+            <NavLink
+              to="/"
+              style={{
+                color: "inherit",
+                textDecoration: "none",
+              }}
+              onClick={handleNavLinkClick("/")}
+            >
+              InterviewPrep
+            </NavLink>
             {currentSection && (
               <Typography
                 variant="h6"
@@ -168,8 +167,9 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <ListItem key={link.text} disablePadding>
                 <ListItemButton
-                  component={NavLink}
-                  to={link.to}
+                  component="a"
+                  href={link.to}
+                  onClick={handleNavLinkClick(link.to)}
                   sx={{
                     "&.active": {
                       backgroundColor: "#e3f2fd",
