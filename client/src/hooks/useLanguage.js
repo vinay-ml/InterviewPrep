@@ -20,6 +20,11 @@ const useLanguage = () => {
     Redis: "javascript",
     kafka: "javascript",
     "System design": "javascript",
+    docker: "javascript",
+    kubernetes: "javascript",
+    jenkins: "javascript",
+    "aws for hosting": "javascript",
+    miscellaneous: "javascript",
   };
 
   return languageMapping[category?.toLowerCase()] || "javascript";

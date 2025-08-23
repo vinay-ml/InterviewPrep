@@ -56,7 +56,12 @@ const Navbar = () => {
     { text: "GenAI with JS", to: "/GenAI with JS" },
     { text: "GenAI with PY", to: "/GenAI with PY" },
     { text: "System design", to: "/system design" },
+    { text: "Docker", to: "/docker" },
+    { text: "Kubernetes", to: "/kubernetes" },
+    { text: "Jenkins", to: "/jenkins" },
+    { text: "AWS for hosting", to: "/aws for hosting" },
     { text: "PowerBI", to: "/powerbi" },
+    { text: "Miscellaneous", to: "/miscellaneous" },
   ];
 
   // Path and current section extraction
