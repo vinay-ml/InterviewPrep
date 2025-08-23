@@ -50,6 +50,7 @@ const Navbar = () => {
     { text: "SQL", to: "/sql" },
     { text: "Sequelize", to: "/sequelize" },
     { text: "Mongodb", to: "/mongodb" },
+    { text: "Elasticsearch", to: "/elasticsearch" },
     { text: "Redis ", to: "/redis " },
     { text: "RabbitMQ ", to: "/rabbitMQ " },
     { text: "Kafka ", to: "/kafka " },

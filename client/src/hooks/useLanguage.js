@@ -17,6 +17,7 @@ const useLanguage = () => {
     sequelize: "javascript",
     mongodb: "javascript",
     rabbitMQ: "javascript",
+    elasticsearch: "javascript",
     Redis: "javascript",
     kafka: "javascript",
     "System design": "javascript",
