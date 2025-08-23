@@ -19,6 +19,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 const Navbar = () => {
   const location = useLocation();
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const [drawerOpen, setDrawerOpen] = useState(false);
