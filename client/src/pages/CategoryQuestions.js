@@ -224,11 +224,9 @@ const CategoryQuestions = () => {
             margin: "40px auto",
           }}
         >
-          <Typography variant="h6" gutterBottom>
-            Error Code: <span style={{ color: "#b71c1c" }}>MONGODB-509</span>
-          </Typography>
           <Typography variant="body1" sx={{ mt: -1 }}>
-            Cluster not available. Free tier M0 storage limit exceeded
+            error code:MONGODB-509, cluster not available. free tier M0 storage
+            limit exceeded
           </Typography>
         </Box>
       )}
