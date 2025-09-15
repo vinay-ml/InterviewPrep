@@ -16,6 +16,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { jwtDecode } from "jwt-decode";
 
 const Navbar = () => {
   const location = useLocation();
@@ -24,6 +25,20 @@ const Navbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  let decoded = {};
+  let accessCodePrefix = "";
+
+  if (token) {
+    try {
+      decoded = jwtDecode(token);
+      const accessCode = decoded?.accessCode || "";
+      accessCodePrefix = accessCode.slice(0, 2);
+    } catch (err) {
+      console.error("Invalid token:", err);
+    }
+  }
 
   useEffect(() => {
     if (!isMobile) {
@@ -119,24 +134,29 @@ const Navbar = () => {
               InterviewPrep
             </NavLink>
             {/* Only display the badge if query param (questionCount) exists */}
-            {currentSection && questionCount && (
-              <Typography
-                variant="h6"
-                component="span"
-                sx={{
-                  ml: 1,
-                  fontWeight: "bold",
-                  fontSize: "16px",
-                  color: "#fff",
-                  background: "#1565c0",
-                  px: 1,
-                  borderRadius: "6px",
-                }}
-              >
-                / {capitalizeFirstLetter(decodeURIComponent(currentSection))}:{" "}
-                {questionCount}
-              </Typography>
-            )}
+
+            {accessCodePrefix !== "CN" && accessCodePrefix !== "MB"
+              ? currentSection &&
+                questionCount && (
+                  <Typography
+                    variant="h6"
+                    component="span"
+                    sx={{
+                      ml: 1,
+                      fontWeight: "bold",
+                      fontSize: "16px",
+                      color: "#fff",
+                      background: "#1565c0",
+                      px: 1,
+                      borderRadius: "6px",
+                    }}
+                  >
+                    /{" "}
+                    {capitalizeFirstLetter(decodeURIComponent(currentSection))}:{" "}
+                    {questionCount}
+                  </Typography>
+                )
+              : ""}
           </Typography>
 
           <IconButton color="inherit" edge="end" onClick={toggleDrawer(true)}>
