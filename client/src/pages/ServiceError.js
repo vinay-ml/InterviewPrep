@@ -8,11 +8,10 @@ const ServiceError = () => {
         border: "1px solid #e0e0e0",
         borderRadius: "8px",
         backgroundColor: "#fff",
-        maxWidth: "700px",
+        maxWidth: "500px",
         margin: "60px auto",
         textAlign: "left",
         fontFamily: "monospace",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
       }}
     >
       <Typography
@@ -24,7 +23,7 @@ const ServiceError = () => {
       </Typography>
 
       <Typography variant="body1" sx={{ mb: 1 }}>
-        Code: <code>FREE_TIER_STORAGE_LIMIT_EXCEEDED</code>
+        Code: <code>`FREE_TIER_STORAGE_LIMIT_EXCEEDED`</code>
       </Typography>
 
       <Typography variant="body1" sx={{ mb: 1 }}>
