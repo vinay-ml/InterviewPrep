@@ -34,12 +34,20 @@ const CategoryQuestions = () => {
   const [openModal, setOpenModal] = useState(false);
 
   const token = localStorage.getItem("token");
-  const decoded = jwtDecode(token);
-  const accessCode = decoded?.accessCode || "";
-  const accessCodePrefix = accessCode.slice(0, 2);
+  let decoded = {};
+  let accessCodePrefix = "";
+
+  if (token) {
+    try {
+      decoded = jwtDecode(token);
+      const accessCode = decoded?.accessCode || "";
+      accessCodePrefix = accessCode.slice(0, 2);
+    } catch (err) {
+      console.error("Invalid token:", err);
+    }
+  }
 
   const username = decoded?.username || "Guest";
-  console.log(username);
 
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState({
     coding: true,
@@ -115,114 +123,116 @@ const CategoryQuestions = () => {
   }
 
   return (
-    <Box sx={{ p: 1, backgroundColor: "#e0e0e0 " }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "10px",
-          marginTop: "10px",
-        }}
-      >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenModal(true)}
-        >
-          {isMobile ? "+ Add" : `+ Add ${category} interview question`}
-        </Button>
-        {/* {!isMobile && (
-          <Typography
-            variant="h5"
-            gutterBottom
+    <>
+      {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" ? (
+        <Box sx={{ p: 1, backgroundColor: "#e0e0e0" }}>
+          <Box
             sx={{
-              color: "primary.main",
-              letterSpacing: "0.05em",
-              fontSize: "24px",
-              textTransform: "capitalize",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "10px",
+              marginTop: "10px",
             }}
           >
-            {Object.values(selectedQuestionTypes).every(
-              (isSelected) => !isSelected
-            )
-              ? `${category} interview questions: 0`
-              : filteredQuestions?.length > 0
-              ? `${category} interview questions: ${filteredQuestions.length}`
-              : `${category} interview questions: Coming soon`}
-          </Typography>
-        )} */}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setOpenModal(true)}
+            >
+              {isMobile ? "+ Add" : `+ Add ${category} interview question`}
+            </Button>
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: 1,
+                alignItems: "center",
+              }}
+            >
+              <Box sx={{ display: "flex", gap: 0, mr: -1 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedQuestionTypes.coding}
+                      onChange={() => handleCheckboxChange("coding")}
+                      color="primary"
+                    />
+                  }
+                  label="Coding"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedQuestionTypes.theory}
+                      onChange={() => handleCheckboxChange("theory")}
+                      color="primary"
+                    />
+                  }
+                  label="Theory"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedQuestionTypes.notes}
+                      onChange={() => handleCheckboxChange("notes")}
+                      color="primary"
+                    />
+                  }
+                  label="Notes"
+                />
+              </Box>
+            </Box>
+          </Box>
+
+          <Grid
+            container
+            spacing={5}
+            sx={{
+              p: { xs: 0, md: 3 },
+              pt: { xs: 2, md: 3 },
+            }}
+          >
+            {filteredQuestions?.map((question, index) => (
+              <Grid item xs={12} md={12} key={question._id}>
+                <QuestionCard
+                  question={question}
+                  onDelete={handleDeleteQuestion}
+                  onDeleteImage={handleDeleteImage}
+                  index={index}
+                />
+              </Grid>
+            ))}
+          </Grid>
+
+          <AddQuestionModal
+            open={openModal}
+            onClose={() => setOpenModal(false)}
+            onSubmit={handleAddQuestion}
+            technology={category}
+            accessCodePrefix={accessCodePrefix}
+          />
+        </Box>
+      ) : (
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 1,
-            alignItems: "center",
+            textAlign: "center",
+            color: "#d32f2f",
+            fontWeight: "bold",
+            fontFamily: "monospace",
+            margin: "40px auto",
           }}
         >
-          <Box sx={{ display: "flex", gap: 0, mr: -1 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={selectedQuestionTypes.coding}
-                  onChange={() => handleCheckboxChange("coding")}
-                  color="primary"
-                />
-              }
-              label={"Coding"}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={selectedQuestionTypes.theory}
-                  onChange={() => handleCheckboxChange("theory")}
-                  color="primary"
-                />
-              }
-              label={"Theory"}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={selectedQuestionTypes.notes}
-                  onChange={() => handleCheckboxChange("notes")}
-                  color="primary"
-                />
-              }
-              label={"Notes"}
-            />
-          </Box>
+          <Typography variant="h6" gutterBottom>
+            Error Code: <span style={{ color: "#b71c1c" }}>MONGODB-509</span>
+          </Typography>
+          <Typography variant="body1" sx={{ mt: -1 }}>
+            Cluster not available. Free tier M0 storage limit exceeded
+          </Typography>
         </Box>
-      </Box>
-
-      <Grid
-        container
-        spacing={5}
-        sx={{
-          p: { xs: 0, md: 3 },
-          pt: { xs: 2, md: 3 },
-        }}
-      >
-        {filteredQuestions?.map((question, index) => (
-          <Grid item xs={12} md={12} key={question._id}>
-            <QuestionCard
-              question={question}
-              onDelete={handleDeleteQuestion}
-              onDeleteImage={handleDeleteImage}
-              index={index}
-            />
-          </Grid>
-        ))}
-      </Grid>
-
-      <AddQuestionModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        onSubmit={handleAddQuestion}
-        technology={category}
-        accessCodePrefix={accessCodePrefix}
-      />
-    </Box>
+      )}
+    </>
   );
 };
 
