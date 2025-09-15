@@ -21,6 +21,7 @@ import { useTheme } from "@mui/material/styles";
 import QuestionCard from "../components/QuestionCard";
 import AddQuestionModal from "../components/AddQuestionModal";
 import OnlineUsers from "./OnlineUsers";
+import ServiceError from "./ServiceError";
 
 const CategoryQuestions = () => {
   const { category } = useParams();
@@ -215,20 +216,7 @@ const CategoryQuestions = () => {
           />
         </Box>
       ) : (
-        <Box
-          sx={{
-            textAlign: "center",
-            color: "#d32f2f",
-            fontWeight: "bold",
-            fontFamily: "monospace",
-            margin: "40px auto",
-          }}
-        >
-          <Typography variant="body1" sx={{ mt: -1 }}>
-            error code:MONGODB-509, cluster not available. free tier M0 storage
-            limit exceeded
-          </Typography>
-        </Box>
+        <ServiceError />
       )}
     </>
   );
