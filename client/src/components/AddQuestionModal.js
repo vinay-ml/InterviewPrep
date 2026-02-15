@@ -155,14 +155,14 @@ const AddQuestionModal = ({
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
             zIndex: 1301,
           }}
         >
           <CircularProgress />
           <Typography
             variant="body1"
-            sx={{ marginTop: "16px", color: "gray", textAlign: "center" }}
+            sx={{ marginTop: "16px", color: "text.secondary", textAlign: "center" }}
           >
             {mode === "add"
               ? "Saving your question... Please wait!"

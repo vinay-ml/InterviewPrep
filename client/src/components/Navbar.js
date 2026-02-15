@@ -109,7 +109,6 @@ const Navbar = () => {
         position="sticky"
         sx={{
           zIndex: 1300,
-          backgroundColor: "#1976d2",
           display: "flex",
           justifyContent: "center",
           alignItems: "space-between",
@@ -145,8 +144,8 @@ const Navbar = () => {
                       ml: 1,
                       fontWeight: "bold",
                       fontSize: "16px",
-                      color: "#fff",
-                      background: "#1565c0",
+                      color: "primary.contrastText",
+                      bgcolor: "primary.dark",
                       px: 1,
                       borderRadius: "6px",
                     }}
@@ -185,8 +184,8 @@ const Navbar = () => {
             sx={{
               padding: "16px",
               textAlign: "center",
-              backgroundColor: "#1976d2",
-              color: "#fff",
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
             }}
           >
             Navigation
@@ -201,7 +200,7 @@ const Navbar = () => {
                   onClick={handleNavLinkClick(link.to)}
                   sx={{
                     "&.active": {
-                      backgroundColor: "#e3f2fd",
+                      backgroundColor: "action.selected",
                     },
                   }}
                 >

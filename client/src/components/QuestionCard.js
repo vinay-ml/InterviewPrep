@@ -96,7 +96,7 @@ const QuestionCard = ({
         sx={{
           borderRadius: "10px",
           overflow: "hidden",
-          backgroundColor: "#e0e0e0",
+          backgroundColor: "background.paper",
         }}
       >
         <CardContent>
@@ -182,7 +182,14 @@ const QuestionCard = ({
                         key={i}
                         variant="body1"
                         gutterBottom
-                        sx={{ marginTop: "5px" }}
+                        sx={{
+                          marginTop: "5px",
+                          "& a": {
+                            color: "#58a6ff",
+                            textDecoration: "underline",
+                            "&:hover": { color: "#79b8ff" },
+                          },
+                        }}
                       >
                         <a href={url} target="_blank" rel="noopener noreferrer">
                           {url}
@@ -282,7 +289,7 @@ const QuestionCard = ({
       </Card>
 
       <Backdrop
-        sx={{ color: "#fff", backdropFilter: "blur(5px)" }}
+        sx={{ color: "common.white", backdropFilter: "blur(5px)" }}
         open={openDialog}
       >
         <Dialog

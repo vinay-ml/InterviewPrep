@@ -1,13 +1,15 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
 const ServiceError = () => {
+  const theme = useTheme();
   return (
     <Box
       sx={{
         p: 3,
-        border: "1px solid #e0e0e0",
+        border: `1px solid ${theme.palette.divider}`,
         borderRadius: "8px",
-        backgroundColor: "#fff",
+        backgroundColor: theme.palette.background.paper,
         maxWidth: "500px",
         margin: "60px auto",
         textAlign: "left",
@@ -17,7 +19,7 @@ const ServiceError = () => {
       <Typography
         variant="h6"
         gutterBottom
-        sx={{ fontWeight: 500, color: "#333" }}
+        sx={{ fontWeight: 500, color: "text.primary" }}
       >
         503: SERVICE_UNAVAILABLE
       </Typography>

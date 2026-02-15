@@ -107,7 +107,7 @@ const CategoryQuestions = () => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
-          backgroundColor: "#e0e0e0 ",
+          backgroundColor: (theme) => theme.palette.background.default,
         }}
       >
         <CircularProgress />
@@ -126,7 +126,7 @@ const CategoryQuestions = () => {
   return (
     <>
       {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" ? (
-        <Box sx={{ p: 1, backgroundColor: "#e0e0e0" }}>
+        <Box sx={{ p: 1, backgroundColor: (theme) => theme.palette.background.default }}>
           <Box
             sx={{
               display: "flex",
