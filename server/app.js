@@ -17,7 +17,7 @@ const server = http.createServer(app);
 // ✅ Socket.IO Setup with frontend CORS
 const io = new Server(server, {
   cors: {
-    origin: ['https://inter-view-prep.vercel.app', 'http://localhost:3000'],
+    origin: ['https://job-interview-prep.vercel.app', 'http://localhost:3000'],
     methods: ['GET', 'POST'],
     credentials: true,
   },
