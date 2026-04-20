@@ -1,1 +1,1 @@
-# Website: https://inter-view-prep.vercel.app/
+# Website: https://job-interview-prep.vercel.app/
