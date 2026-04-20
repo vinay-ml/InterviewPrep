@@ -5,8 +5,8 @@ import io from 'socket.io-client';
 
 // ✅ Connect to backend socket server
 const socket = io(
-  window.location.hostname === 'inter-view-prep.vercel.app'
-    ? 'https://inter-view-prep.vercel.app'
+  window.location.hostname === 'job-interview-prep.vercel.app'
+    ? 'https://job-interview-prep.vercel.app'
     : 'http://localhost:5000'
 );
 

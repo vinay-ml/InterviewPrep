@@ -1,21 +1,21 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const authApi = createApi({
-  reducerPath: "authApi",
+  reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
     // baseUrl: "https://inter-view-prep.onrender.com/api/auth",
-    baseUrl: "https://inter-view-prep.vercel.app/api/auth",
+    baseUrl: 'https://job-interview-prep.vercel.app/api/auth',
     prepareHeaders: (headers) => {
-      const storedToken = localStorage.getItem("token");
+      const storedToken = localStorage.getItem('token');
       if (storedToken) {
         const { token, expiry } = JSON.parse(storedToken);
         const isExpired = new Date().getTime() > expiry;
 
         if (isExpired) {
-          console.warn("Token expired");
-          localStorage.removeItem("token");
+          console.warn('Token expired');
+          localStorage.removeItem('token');
         } else {
-          headers.set("Authorization", `Bearer ${token}`);
+          headers.set('Authorization', `Bearer ${token}`);
         }
       }
       return headers;
@@ -25,8 +25,8 @@ export const authApi = createApi({
     login: builder.mutation({
       query(body) {
         return {
-          url: "/login",
-          method: "POST",
+          url: '/login',
+          method: 'POST',
           body,
         };
       },
@@ -36,9 +36,9 @@ export const authApi = createApi({
           const now = new Date().getTime();
           const expiry = now + 10 * 24 * 60 * 60 * 1000;
           const tokenData = { token: data.token, expiry };
-          localStorage.setItem("token", JSON.stringify(tokenData));
+          localStorage.setItem('token', JSON.stringify(tokenData));
         } catch (error) {
-          console.error("Login failed:", error);
+          console.error('Login failed:', error);
         }
       },
     }),

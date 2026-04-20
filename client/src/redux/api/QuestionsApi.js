@@ -1,55 +1,55 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const questionsApi = createApi({
-  reducerPath: "questionsApi",
+  reducerPath: 'questionsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://inter-view-prep.vercel.app/api/questions",
+    baseUrl: 'https://job-interview-prep.vercel.app/api/questions',
   }),
-  tagTypes: ["Questions"],
+  tagTypes: ['Questions'],
   endpoints: (builder) => ({
     // Fetch all questions by category
     getAllQuestions: builder.query({
       query: (category) => `/all/${category}`,
-      providesTags: ["Questions"],
+      providesTags: ['Questions'],
     }),
 
     // Add a new question
     addQuestion: builder.mutation({
       query: (formData) => ({
-        url: "/add",
-        method: "POST",
+        url: '/add',
+        method: 'POST',
         body: formData,
       }),
-      invalidatesTags: ["Questions"],
+      invalidatesTags: ['Questions'],
     }),
 
     // Update a question
     updateQuestion: builder.mutation({
       query: ({ id, formData }) => ({
         url: `/update/${id}`,
-        method: "PUT",
+        method: 'PUT',
         body: formData,
       }),
-      invalidatesTags: ["Questions"],
+      invalidatesTags: ['Questions'],
     }),
 
     // Delete a specific image from a question
     deleteImage: builder.mutation({
       query: (body) => ({
-        url: "/delete-image",
-        method: "DELETE",
+        url: '/delete-image',
+        method: 'DELETE',
         body,
       }),
-      invalidatesTags: ["Questions"],
+      invalidatesTags: ['Questions'],
     }),
 
     // Delete a question and its images
     deleteQuestion: builder.mutation({
       query: (id) => ({
         url: `/delete/${id}`,
-        method: "DELETE",
+        method: 'DELETE',
       }),
-      invalidatesTags: ["Questions"],
+      invalidatesTags: ['Questions'],
     }),
   }),
 });
