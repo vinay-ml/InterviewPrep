@@ -39,7 +39,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
   const decoded = jwtDecode(token);
   const accessCode = decoded?.accessCode || '';
   const accessCodePrefix = accessCode.slice(0, 2);
-  const hideDeleteActions = accessCodePrefix === 'CN' || accessCodePrefix === 'MB';
+  const disableManageActions = accessCodePrefix === 'CN' || accessCodePrefix === 'MB';
 
   const location = useLocation();
   const language = useLanguage();
@@ -226,19 +226,17 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                     }
                   />
                 )}
-                {!hideDeleteActions && (
-                  <IconButton
-                    sx={{ position: 'absolute', top: 5, right: 5 }}
-                    onClick={() => handleOpenDialog(image)}
-                    disabled={deletingImageId === image || confirmingDelete}
-                  >
-                    {deletingImageId === image ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      <DeleteIcon color="error" />
-                    )}
-                  </IconButton>
-                )}
+                <IconButton
+                  sx={{ position: 'absolute', top: 5, right: 5 }}
+                  onClick={() => handleOpenDialog(image)}
+                  disabled={disableManageActions || deletingImageId === image || confirmingDelete}
+                >
+                  {deletingImageId === image ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <DeleteIcon color="error" />
+                  )}
+                </IconButton>
               </Box>
             ))}
 
@@ -249,18 +247,22 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
               marginTop: '20px',
             }}
           >
-            <Button variant="outlined" color="primary" size="small" onClick={handleOpenUpdateModal}>
+            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              onClick={handleOpenUpdateModal}
+              disabled={disableManageActions}
+            >
               Update Question
             </Button>
-            {!hideDeleteActions && (
-              <IconButton
-                color="secondary"
-                onClick={() => handleOpenDialog('question')}
-                disabled={deletingQuestion || confirmingDelete}
-              >
-                {deletingQuestion ? <CircularProgress size={20} /> : <DeleteIcon />}
-              </IconButton>
-            )}
+            <IconButton
+              color="secondary"
+              onClick={() => handleOpenDialog('question')}
+              disabled={disableManageActions || deletingQuestion || confirmingDelete}
+            >
+              {deletingQuestion ? <CircularProgress size={20} /> : <DeleteIcon />}
+            </IconButton>
           </div>
         </CardContent>
       </Card>

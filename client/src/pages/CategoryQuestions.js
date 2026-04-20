@@ -47,7 +47,7 @@ const CategoryQuestions = () => {
   }
 
   const username = decoded?.username || 'Guest';
-  const isCNUser = accessCodePrefix === 'CN';
+  const disableAddAction = accessCodePrefix === 'CN';
 
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState({
     coding: true,
@@ -134,13 +134,14 @@ const CategoryQuestions = () => {
             marginTop: '10px',
           }}
         >
-          {!isCNUser ? (
-            <Button variant="contained" color="primary" onClick={() => setOpenModal(true)}>
-              {isMobile ? '+ Add' : `+ Add ${category} interview question`}
-            </Button>
-          ) : (
-            <Box />
-          )}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setOpenModal(true)}
+            disabled={disableAddAction}
+          >
+            {isMobile ? '+ Add' : `+ Add ${category} interview question`}
+          </Button>
 
           <Box
             sx={{
