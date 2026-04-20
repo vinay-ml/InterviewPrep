@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { getStoredJwtToken } from '../utils/authToken';
 
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -7,23 +8,30 @@ const useAuth = () => {
 
   useEffect(() => {
     const tokenData = localStorage.getItem('token');
+    const jwtToken = getStoredJwtToken();
 
-    if (tokenData) {
+    if (tokenData && jwtToken) {
       try {
-        const { token, expiry } = JSON.parse(tokenData);
-        const now = new Date().getTime();
+        let expiry = null;
+        try {
+          const parsed = JSON.parse(tokenData);
+          if (parsed && typeof parsed === 'object' && typeof parsed.expiry === 'number') {
+            expiry = parsed.expiry;
+          }
+        } catch (_) {
+          // Raw token format does not include expiry.
+        }
 
-        if (now > expiry) {
-          // Token has expired//
+        if (expiry && new Date().getTime() > expiry) {
           console.warn('Token expired, removing it from localStorage');
           localStorage.removeItem('token');
           setIsAuthenticated(false);
-        } else {
-          // Decode token and set state
-          const decoded = jwtDecode(token);
-          setAccessCode(decoded.accessCode);
-          setIsAuthenticated(true);
+          return;
         }
+
+        const decoded = jwtDecode(jwtToken);
+        setAccessCode(decoded.accessCode);
+        setIsAuthenticated(true);
       } catch (error) {
         console.error('Invalid token or token parsing error:', error);
         localStorage.removeItem('token');

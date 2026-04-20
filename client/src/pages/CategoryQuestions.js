@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   useGetAllQuestionsQuery,
   useDeleteQuestionMutation,
   useDeleteImageMutation,
   useAddQuestionMutation,
-} from "../redux/api/QuestionsApi";
+} from '../redux/api/QuestionsApi';
 import {
   Grid,
   Typography,
@@ -15,40 +15,28 @@ import {
   FormControlLabel,
   Checkbox,
   useMediaQuery,
-} from "@mui/material";
-import { jwtDecode } from "jwt-decode";
-import { useTheme } from "@mui/material/styles";
-import QuestionCard from "../components/QuestionCard";
-import AddQuestionModal from "../components/AddQuestionModal";
-import OnlineUsers from "./OnlineUsers";
-import ServiceError from "./ServiceError";
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import QuestionCard from '../components/QuestionCard';
+import AddQuestionModal from '../components/AddQuestionModal';
+import { getDecodedAuthToken } from '../utils/authToken';
 
 const CategoryQuestions = () => {
   const { category } = useParams();
   const navigate = useNavigate();
 
-  const { data, isLoading, error, isFetching } =
-    useGetAllQuestionsQuery(category);
+  const { data, isLoading, error, isFetching } = useGetAllQuestionsQuery(category);
   const [deleteQuestion] = useDeleteQuestionMutation();
   const [deleteImage] = useDeleteImageMutation();
   const [addQuestion] = useAddQuestionMutation();
   const [openModal, setOpenModal] = useState(false);
 
-  const token = localStorage.getItem("token");
-  let decoded = {};
-  let accessCodePrefix = "";
+  const decoded = getDecodedAuthToken();
+  const accessCode = (decoded?.accessCode || '').toUpperCase();
+  const accessCodePrefix = accessCode.slice(0, 2);
 
-  if (token) {
-    try {
-      decoded = jwtDecode(token);
-      const accessCode = decoded?.accessCode || "";
-      accessCodePrefix = accessCode.slice(0, 2);
-    } catch (err) {
-      console.error("Invalid token:", err);
-    }
-  }
-
-  const username = decoded?.username || "Guest";
+  const username = decoded?.username || 'Guest';
+  const isCNUser = accessCodePrefix === 'CN';
 
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState({
     coding: true,
@@ -57,7 +45,7 @@ const CategoryQuestions = () => {
   });
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
   useEffect(() => {
     setSelectedQuestionTypes({
@@ -103,10 +91,10 @@ const CategoryQuestions = () => {
     return (
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
           backgroundColor: (theme) => theme.palette.background.default,
         }}
       >
@@ -125,99 +113,95 @@ const CategoryQuestions = () => {
 
   return (
     <>
-      {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" ? (
-        <Box sx={{ p: 1, backgroundColor: (theme) => theme.palette.background.default }}>
+      <Box sx={{ p: 1, backgroundColor: (theme) => theme.palette.background.default }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '10px',
+            marginTop: '10px',
+          }}
+        >
+          {!isCNUser ? (
+            <Button variant="contained" color="primary" onClick={() => setOpenModal(true)}>
+              {isMobile ? '+ Add' : `+ Add ${category} interview question`}
+            </Button>
+          ) : (
+            <Box />
+          )}
+
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "10px",
-              marginTop: "10px",
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 1,
+              alignItems: 'center',
             }}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setOpenModal(true)}
-            >
-              {isMobile ? "+ Add" : `+ Add ${category} interview question`}
-            </Button>
-
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 1,
-                alignItems: "center",
-              }}
-            >
-              <Box sx={{ display: "flex", gap: 0, mr: -1 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedQuestionTypes.coding}
-                      onChange={() => handleCheckboxChange("coding")}
-                      color="primary"
-                    />
-                  }
-                  label="Coding"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedQuestionTypes.theory}
-                      onChange={() => handleCheckboxChange("theory")}
-                      color="primary"
-                    />
-                  }
-                  label="Theory"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedQuestionTypes.notes}
-                      onChange={() => handleCheckboxChange("notes")}
-                      color="primary"
-                    />
-                  }
-                  label="Notes"
-                />
-              </Box>
+            <Box sx={{ display: 'flex', gap: 0, mr: -1 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedQuestionTypes.coding}
+                    onChange={() => handleCheckboxChange('coding')}
+                    color="primary"
+                  />
+                }
+                label="Coding"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedQuestionTypes.theory}
+                    onChange={() => handleCheckboxChange('theory')}
+                    color="primary"
+                  />
+                }
+                label="Theory"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedQuestionTypes.notes}
+                    onChange={() => handleCheckboxChange('notes')}
+                    color="primary"
+                  />
+                }
+                label="Notes"
+              />
             </Box>
           </Box>
-
-          <Grid
-            container
-            spacing={5}
-            sx={{
-              p: { xs: 0, md: 3 },
-              pt: { xs: 2, md: 3 },
-            }}
-          >
-            {filteredQuestions?.map((question, index) => (
-              <Grid item xs={12} md={12} key={question._id}>
-                <QuestionCard
-                  question={question}
-                  onDelete={handleDeleteQuestion}
-                  onDeleteImage={handleDeleteImage}
-                  index={index}
-                />
-              </Grid>
-            ))}
-          </Grid>
-
-          <AddQuestionModal
-            open={openModal}
-            onClose={() => setOpenModal(false)}
-            onSubmit={handleAddQuestion}
-            technology={category}
-            accessCodePrefix={accessCodePrefix}
-          />
         </Box>
-      ) : (
-        <ServiceError />
-      )}
+
+        <Grid
+          container
+          spacing={5}
+          sx={{
+            p: { xs: 0, md: 3 },
+            pt: { xs: 2, md: 3 },
+          }}
+        >
+          {filteredQuestions?.map((question, index) => (
+            <Grid item xs={12} md={12} key={question._id}>
+              <QuestionCard
+                question={question}
+                onDelete={handleDeleteQuestion}
+                onDeleteImage={handleDeleteImage}
+                index={index}
+              />
+            </Grid>
+          ))}
+        </Grid>
+
+        <AddQuestionModal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          onSubmit={handleAddQuestion}
+          technology={category}
+          accessCodePrefix={accessCodePrefix}
+        />
+      </Box>
     </>
   );
 };

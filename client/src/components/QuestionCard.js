@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -15,24 +15,18 @@ import {
   Backdrop,
   Skeleton,
   Paper,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { jwtDecode } from "jwt-decode";
-import { useLocation } from "react-router-dom";
-import AddQuestionModal from "./AddQuestionModal";
-import useLanguage from "../hooks/useLanguage";
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useLocation } from 'react-router-dom';
+import AddQuestionModal from './AddQuestionModal';
+import useLanguage from '../hooks/useLanguage';
+import { getDecodedAuthToken } from '../utils/authToken';
 
-const QuestionCard = ({
-  question,
-  onDelete,
-  onDeleteImage,
-  index,
-  onUpdate,
-}) => {
+const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) => {
   const [deletingQuestion, setDeletingQuestion] = useState(false);
-  const [deletingImageId, setDeletingImageId] = useState("");
+  const [deletingImageId, setDeletingImageId] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -41,17 +35,17 @@ const QuestionCard = ({
   const [showCode, setShowCode] = useState(false);
   const [showImage, setShowImage] = useState({});
 
-  const token = localStorage.getItem("token");
-  const decoded = jwtDecode(token);
-  const accessCode = decoded?.accessCode || "";
+  const decoded = getDecodedAuthToken();
+  const accessCode = (decoded?.accessCode || '').toUpperCase();
   const accessCodePrefix = accessCode.slice(0, 2);
+  const hideDeleteActions = accessCodePrefix === 'CN' || accessCodePrefix === 'MB';
 
   const location = useLocation();
   const language = useLanguage();
 
   const handleConfirmDelete = async () => {
     setConfirmingDelete(true);
-    if (deleteTarget === "question") {
+    if (deleteTarget === 'question') {
       setDeletingQuestion(true);
       await onDelete(question._id);
       setDeletingQuestion(false);
@@ -61,7 +55,7 @@ const QuestionCard = ({
         id: question._id,
         imageUrl: deleteTarget,
       });
-      setDeletingImageId("");
+      setDeletingImageId('');
     }
     setConfirmingDelete(false);
     setOpenDialog(false);
@@ -86,24 +80,23 @@ const QuestionCard = ({
     setUpdateModalOpen(false);
   };
 
-  const hasAnswers =
-    question.answers && question.answers.some((ans) => ans.trim() !== "");
+  const hasAnswers = question.answers && question.answers.some((ans) => ans.trim() !== '');
 
   return (
-    <Paper elevation={24} sx={{ borderRadius: "10px" }}>
+    <Paper elevation={24} sx={{ borderRadius: '10px' }}>
       <Card
         elevation={8}
         sx={{
-          borderRadius: "10px",
-          overflow: "hidden",
-          backgroundColor: "background.paper",
+          borderRadius: '10px',
+          overflow: 'hidden',
+          backgroundColor: 'background.paper',
         }}
       >
         <CardContent>
           <Typography
             sx={{
-              opacity: "90%",
-              fontSize: { xs: "1rem", sm: "1.1rem", md: "1.3rem" },
+              opacity: '90%',
+              fontSize: { xs: '1rem', sm: '1.1rem', md: '1.3rem' },
               fontWeight: 500,
             }}
           >
@@ -114,8 +107,8 @@ const QuestionCard = ({
             <List
               component="ul"
               sx={{
-                listStyleType: "disc",
-                paddingLeft: { xs: "16px", sm: "24px", md: "28px" },
+                listStyleType: 'disc',
+                paddingLeft: { xs: '16px', sm: '24px', md: '28px' },
               }}
             >
               {question.answers.map(
@@ -125,9 +118,9 @@ const QuestionCard = ({
                       key={i}
                       component="li"
                       sx={{
-                        display: "list-item",
-                        paddingLeft: "0px",
-                        fontSize: { xs: "0.95rem", sm: "1rem", md: "1.2rem" },
+                        display: 'list-item',
+                        paddingLeft: '0px',
+                        fontSize: { xs: '0.95rem', sm: '1rem', md: '1.2rem' },
                       }}
                     >
                       {answer}
@@ -143,21 +136,21 @@ const QuestionCard = ({
                 variant="contained"
                 size="small"
                 onClick={() => setShowCode((prev) => !prev)}
-                sx={{ marginTop: "10px" }}
+                sx={{ marginTop: '10px' }}
               >
-                {showCode ? "Hide Code" : "Show Me Code"}
+                {showCode ? 'Hide Code' : 'Show Me Code'}
               </Button>
               {showCode && (
                 <SyntaxHighlighter
                   language={language}
                   style={dracula}
                   customStyle={{
-                    background: "#1e1e1e",
-                    color: "#d4d4d4",
-                    borderRadius: "5px",
-                    padding: "20px",
-                    fontSize: "14px",
-                    overflowX: "auto",
+                    background: '#1e1e1e',
+                    color: '#d4d4d4',
+                    borderRadius: '5px',
+                    padding: '20px',
+                    fontSize: '14px',
+                    overflowX: 'auto',
                   }}
                 >
                   {question.sampleCode}
@@ -166,39 +159,35 @@ const QuestionCard = ({
             </>
           )}
 
-          {question.referenceURLs &&
-            question.referenceURLs.some((url) => url.trim() !== "") && (
-              <>
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: "bold", marginTop: "10px" }}
-                >
-                  Reference Links:
-                </Typography>
-                {question.referenceURLs.map(
-                  (url, i) =>
-                    url.trim() && (
-                      <Typography
-                        key={i}
-                        variant="body1"
-                        gutterBottom
-                        sx={{
-                          marginTop: "5px",
-                          "& a": {
-                            color: "#58a6ff",
-                            textDecoration: "underline",
-                            "&:hover": { color: "#79b8ff" },
-                          },
-                        }}
-                      >
-                        <a href={url} target="_blank" rel="noopener noreferrer">
-                          {url}
-                        </a>
-                      </Typography>
-                    )
-                )}
-              </>
-            )}
+          {question.referenceURLs && question.referenceURLs.some((url) => url.trim() !== '') && (
+            <>
+              <Typography variant="body2" sx={{ fontWeight: 'bold', marginTop: '10px' }}>
+                Reference Links:
+              </Typography>
+              {question.referenceURLs.map(
+                (url, i) =>
+                  url.trim() && (
+                    <Typography
+                      key={i}
+                      variant="body1"
+                      gutterBottom
+                      sx={{
+                        marginTop: '5px',
+                        '& a': {
+                          color: '#58a6ff',
+                          textDecoration: 'underline',
+                          '&:hover': { color: '#79b8ff' },
+                        },
+                      }}
+                    >
+                      <a href={url} target="_blank" rel="noopener noreferrer">
+                        {url}
+                      </a>
+                    </Typography>
+                  )
+              )}
+            </>
+          )}
 
           {question.images &&
             question.images.length > 0 &&
@@ -206,29 +195,27 @@ const QuestionCard = ({
               <Box
                 key={i}
                 sx={{
-                  position: "relative",
-                  marginTop: "20px",
-                  marginBottom: "20px",
+                  position: 'relative',
+                  marginTop: '20px',
+                  marginBottom: '20px',
                 }}
               >
                 <Button
                   variant="outlined"
                   size="small"
-                  onClick={() =>
-                    setShowImage((prev) => ({ ...prev, [image]: !prev[image] }))
-                  }
-                  sx={{ marginBottom: "10px" }}
+                  onClick={() => setShowImage((prev) => ({ ...prev, [image]: !prev[image] }))}
+                  sx={{ marginBottom: '10px' }}
                 >
-                  {showImage[image] ? "Hide Image" : "Show Me Image"}
+                  {showImage[image] ? 'Hide Image' : 'Show Me Image'}
                 </Button>
                 {showImage[image] && (
                   <img
                     src={image}
                     alt={`Visual representation for question ${index + 1}`}
                     style={{
-                      width: "100%",
-                      borderRadius: "5px",
-                      objectFit: "cover",
+                      width: '100%',
+                      borderRadius: '5px',
+                      objectFit: 'cover',
                     }}
                     onLoad={() =>
                       setImageLoaded((prev) => ({
@@ -238,9 +225,9 @@ const QuestionCard = ({
                     }
                   />
                 )}
-                {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" && (
+                {!hideDeleteActions && (
                   <IconButton
-                    sx={{ position: "absolute", top: 5, right: 5 }}
+                    sx={{ position: 'absolute', top: 5, right: 5 }}
                     onClick={() => handleOpenDialog(image)}
                     disabled={deletingImageId === image || confirmingDelete}
                   >
@@ -256,51 +243,37 @@ const QuestionCard = ({
 
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "20px",
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginTop: '20px',
             }}
           >
-            {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" && (
-              <Button
-                variant="outlined"
-                color="primary"
-                size="small"
-                onClick={handleOpenUpdateModal}
-              >
-                Update Question
-              </Button>
-            )}
-            {accessCodePrefix !== "CN" && accessCodePrefix !== "MB" && (
+            <Button variant="outlined" color="primary" size="small" onClick={handleOpenUpdateModal}>
+              Update Question
+            </Button>
+            {!hideDeleteActions && (
               <IconButton
                 color="secondary"
-                onClick={() => handleOpenDialog("question")}
+                onClick={() => handleOpenDialog('question')}
                 disabled={deletingQuestion || confirmingDelete}
               >
-                {deletingQuestion ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <DeleteIcon />
-                )}
+                {deletingQuestion ? <CircularProgress size={20} /> : <DeleteIcon />}
               </IconButton>
             )}
           </div>
         </CardContent>
       </Card>
 
-      <Backdrop
-        sx={{ color: "common.white", backdropFilter: "blur(5px)" }}
-        open={openDialog}
-      >
+      <Backdrop sx={{ color: 'common.white', backdropFilter: 'blur(5px)' }} open={openDialog}>
         <Dialog
           open={openDialog}
           onClose={() => setOpenDialog(false)}
           aria-labelledby="delete-confirmation-dialog"
-          sx={{ "& .MuiDialog-paper": { borderRadius: "10px", elevation: 8 } }}
+          sx={{ '& .MuiDialog-paper': { borderRadius: '10px', elevation: 8 } }}
         >
           <DialogTitle id="delete-confirmation-dialog">
-            Are you sure you want to delete this{" "}
-            {deleteTarget === "question" ? "question" : "image"}?
+            Are you sure you want to delete this{' '}
+            {deleteTarget === 'question' ? 'question' : 'image'}?
           </DialogTitle>
           <DialogActions>
             <Button
@@ -317,7 +290,7 @@ const QuestionCard = ({
               disabled={confirmingDelete}
               startIcon={confirmingDelete && <CircularProgress size={20} />}
             >
-              {confirmingDelete ? "" : "Yes"}
+              {confirmingDelete ? '' : 'Yes'}
             </Button>
           </DialogActions>
         </Dialog>
@@ -328,7 +301,7 @@ const QuestionCard = ({
         open={updateModalOpen}
         onClose={handleCloseUpdateModal}
         onSubmit={handleUpdate}
-        technology={location.pathname.split("-")[0].replace("/", "")}
+        technology={location.pathname.split('-')[0].replace('/', '')}
         mode="update"
         questionId={question._id}
         initialData={question}
