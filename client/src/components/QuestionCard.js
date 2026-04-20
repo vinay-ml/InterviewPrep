@@ -19,10 +19,10 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { jwtDecode } from 'jwt-decode';
 import { useLocation } from 'react-router-dom';
 import AddQuestionModal from './AddQuestionModal';
 import useLanguage from '../hooks/useLanguage';
-import { getDecodedAuthToken } from '../utils/authToken';
 
 const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) => {
   const [deletingQuestion, setDeletingQuestion] = useState(false);
@@ -35,8 +35,9 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
   const [showCode, setShowCode] = useState(false);
   const [showImage, setShowImage] = useState({});
 
-  const decoded = getDecodedAuthToken();
-  const accessCode = (decoded?.accessCode || '').toUpperCase();
+  const token = localStorage.getItem('token');
+  const decoded = jwtDecode(token);
+  const accessCode = decoded?.accessCode || '';
   const accessCodePrefix = accessCode.slice(0, 2);
   const hideDeleteActions = accessCodePrefix === 'CN' || accessCodePrefix === 'MB';
 

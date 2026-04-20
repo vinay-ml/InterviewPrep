@@ -16,8 +16,6 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import OnlineUsers from '../pages/OnlineUsers';
-import { getDecodedAuthToken } from '../utils/authToken';
 
 const Navbar = () => {
   const location = useLocation();
@@ -26,12 +24,6 @@ const Navbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
-  const decoded = getDecodedAuthToken();
-
-  const username = decoded?.username || '';
-  const accessCode = (decoded?.accessCode || '').toUpperCase();
-  const accessCodePrefix = accessCode.slice(0, 2);
-  const isADUser = accessCodePrefix === 'AD';
 
   useEffect(() => {
     if (!isMobile) {
@@ -141,12 +133,9 @@ const Navbar = () => {
             )}
           </Typography>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <OnlineUsers username={username} isADUser={isADUser} />
-            <IconButton color="inherit" edge="end" onClick={toggleDrawer(true)}>
-              <MenuIcon />
-            </IconButton>
-          </Box>
+          <IconButton color="inherit" edge="end" onClick={toggleDrawer(true)}>
+            <MenuIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
 
