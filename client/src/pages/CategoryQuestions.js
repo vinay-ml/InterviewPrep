@@ -16,10 +16,11 @@ import {
   Checkbox,
   useMediaQuery,
 } from '@mui/material';
+import { jwtDecode } from 'jwt-decode';
 import { useTheme } from '@mui/material/styles';
 import QuestionCard from '../components/QuestionCard';
 import AddQuestionModal from '../components/AddQuestionModal';
-import { getDecodedAuthToken } from '../utils/authToken';
+import OnlineUsers from './OnlineUsers';
 
 const CategoryQuestions = () => {
   const { category } = useParams();
@@ -31,9 +32,19 @@ const CategoryQuestions = () => {
   const [addQuestion] = useAddQuestionMutation();
   const [openModal, setOpenModal] = useState(false);
 
-  const decoded = getDecodedAuthToken();
-  const accessCode = (decoded?.accessCode || '').toUpperCase();
-  const accessCodePrefix = accessCode.slice(0, 2);
+  const token = localStorage.getItem('token');
+  let decoded = {};
+  let accessCodePrefix = '';
+
+  if (token) {
+    try {
+      decoded = jwtDecode(token);
+      const accessCode = decoded?.accessCode || '';
+      accessCodePrefix = accessCode.slice(0, 2);
+    } catch (err) {
+      console.error('Invalid token:', err);
+    }
+  }
 
   const username = decoded?.username || 'Guest';
   const isCNUser = accessCodePrefix === 'CN';

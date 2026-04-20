@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Tooltip, Box, Badge, useTheme } from '@mui/material';
+import { Avatar, Tooltip, Box, Badge, Paper, useTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import io from 'socket.io-client';
 
-const getSocketServerUrl = () => {
-  const host = window.location.hostname;
-  const isLocalHost = host === 'localhost' || host === '127.0.0.1';
-
-  return isLocalHost ? 'http://localhost:5000' : 'https://inter-view-prep.vercel.app';
-};
-
-// Connect to a single shared socket backend.
-const socket = io(getSocketServerUrl(), {
-  autoConnect: false,
-  transports: ['websocket', 'polling'],
-});
+// ✅ Connect to backend socket server
+const socket = io(
+  window.location.hostname === 'inter-view-prep.vercel.app'
+    ? 'https://inter-view-prep.vercel.app'
+    : 'http://localhost:5000'
+);
 
 // ✅ Styled green dot badge
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -30,29 +24,16 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const OnlineUsers = ({ username, isADUser }) => {
+const OnlineUsers = ({ username }) => {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const theme = useTheme();
-  const currentUserName = username?.trim() || 'AD User';
 
   useEffect(() => {
-    if (!username?.trim()) return undefined;
-
-    const emitUserOnline = () => {
-      if (username?.trim()) {
-        socket.emit('user-online', { username: username.trim() });
-      }
-    };
-
-    socket.connect();
+    if (!username) return;
 
     socket.on('connect', () => {
-      emitUserOnline();
+      socket.emit('user-online', { username });
     });
-
-    if (socket.connected) {
-      emitUserOnline();
-    }
 
     socket.on('online-users', (users) => {
       setOnlineUsers(users);
@@ -61,45 +42,49 @@ const OnlineUsers = ({ username, isADUser }) => {
     return () => {
       socket.off('connect');
       socket.off('online-users');
-      socket.disconnect();
     };
   }, [username]);
-
-  if (!isADUser) {
-    return null;
-  }
-
-  const displayedUsers = Array.from(new Set([currentUserName, ...onlineUsers.filter(Boolean)]));
 
   return (
     <Box
       sx={{
+        position: 'fixed',
+        top: 50,
+        right: 12,
+        zIndex: 9999,
         display: 'flex',
         gap: 0.5,
         flexDirection: 'row',
-        alignItems: 'center',
       }}
     >
-      {displayedUsers.map((user, index) => (
+      {onlineUsers.map((user, index) => (
         <Tooltip title={user} arrow key={index}>
-          <StyledBadge
-            overlap="circular"
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            variant="dot"
+          <Paper
+            elevation={6}
+            sx={{
+              borderRadius: '50%',
+              p: 0.4,
+              cursor: 'pointer',
+            }}
           >
-            <Avatar
-              sx={{
-                width: 30,
-                height: 30,
-                fontSize: '0.75rem',
-                bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : 'grey.200',
-                color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-                border: `1px solid ${theme.palette.divider}`,
-              }}
+            <StyledBadge
+              overlap="circular"
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              variant="dot"
             >
-              {user.trim().slice(0, 2).toUpperCase()}
-            </Avatar>
-          </StyledBadge>
+              <Avatar
+                sx={{
+                  width: 26,
+                  height: 26,
+                  fontSize: '0.75rem',
+                  bgcolor: 'transparent',
+                  color: theme.palette.mode === 'dark' ? '#fff' : '#000',
+                }}
+              >
+                {user.slice(0, 2).toUpperCase()}
+              </Avatar>
+            </StyledBadge>
+          </Paper>
         </Tooltip>
       ))}
     </Box>
