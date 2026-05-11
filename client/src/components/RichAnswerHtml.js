@@ -4,6 +4,24 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { sanitizeRichHtml, richTextAnswerSx } from '../utils/richText';
 
+const richTextViewSx = {
+  ...richTextAnswerSx,
+  bgcolor: 'transparent',
+  '& pre': {
+    ...richTextAnswerSx['& pre'],
+    bgcolor: 'transparent',
+    border: 'none',
+  },
+  '& pre code.hljs': {
+    ...richTextAnswerSx['& pre code.hljs'],
+    backgroundColor: 'transparent',
+  },
+  '& :not(pre) > code': {
+    ...richTextAnswerSx['& :not(pre) > code'],
+    bgcolor: 'transparent',
+  },
+};
+
 const LANGUAGE_ALIAS = {
   js: 'javascript',
   ts: 'typescript',
@@ -82,7 +100,7 @@ export default function RichAnswerHtml({ html }) {
   const segments = useMemo(() => splitHtmlAndCodeBlocks(safe), [safe]);
 
   return (
-    <Box className="rich-text-view" sx={richTextAnswerSx}>
+    <Box className="rich-text-view" sx={richTextViewSx}>
       {segments.map((segment, idx) =>
         segment.type === 'code' ? (
           <Box key={`code-${segment.marker}-${idx}`} sx={{ my: 1.5 }}>
@@ -90,14 +108,14 @@ export default function RichAnswerHtml({ html }) {
               language={segment.language}
               style={dracula}
               customStyle={{
-                background: '#1e1e1e',
+                background: 'transparent',
                 color: '#d4d4d4',
                 borderRadius: '8px',
                 padding: '16px',
                 fontSize: '14px',
                 margin: 0,
                 overflowX: 'auto',
-                border: '1px solid rgba(255,255,255,0.12)',
+                border: 'none',
               }}
             >
               {segment.source}
