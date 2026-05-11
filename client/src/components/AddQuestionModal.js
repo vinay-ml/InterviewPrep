@@ -23,7 +23,12 @@ import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useAddQuestionMutation, useUpdateQuestionMutation } from '../redux/api/QuestionsApi';
 import useLanguage from '../hooks/useLanguage';
 import RichTextEditor from './RichTextEditor';
-import { answersToEditorHtml, serializeAnswersForApi } from '../utils/richText';
+import {
+  answersToEditorHtml,
+  serializeAnswersForApi,
+  coalesceQuestionType,
+  QUESTION_TYPES,
+} from '../utils/richText';
 
 const EMPTY_FORM = {
   title: '',
@@ -36,6 +41,12 @@ const EMPTY_FORM = {
 
 function normalizeFormShape(data) {
   const d = data || EMPTY_FORM;
+  const hasPersistedId = d._id != null && String(d._id).trim() !== '';
+  const questionType = hasPersistedId
+    ? coalesceQuestionType(d)
+    : QUESTION_TYPES.includes(d.questionType)
+      ? d.questionType
+      : '';
   return {
     title: d.title ?? '',
     answers: answersToEditorHtml(d.answers),
@@ -43,7 +54,7 @@ function normalizeFormShape(data) {
     referenceURLs: Array.isArray(d.referenceURLs)
       ? d.referenceURLs.filter(Boolean).join(',')
       : (d.referenceURLs ?? ''),
-    questionType: d.questionType ?? '',
+    questionType,
     images: Array.isArray(d.images) ? [...d.images] : [],
   };
 }
@@ -96,8 +107,8 @@ const AddQuestionModal = ({
             }
       )
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- resync only when dialog opens or edited question identity changes (not full initialData)
-  }, [open, questionId, initialData._id, mode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- resync on open / question identity / server fields that affect inferred type
+  }, [open, questionId, initialData._id, mode, initialData.questionType, initialData.sampleCode]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -253,21 +264,19 @@ const AddQuestionModal = ({
             rows={2}
           />
 
-          {/* Conditional Answers */}
-          {formData.questionType !== 'coding' && (
-            <Box>
-              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: 'text.secondary' }}>
-                Answer — rich text (headings, lists, tables, links, colors…)
-              </Typography>
-              <RichTextEditor
-                key={`${open}-${questionId || 'new'}-${String(initialData._id || '')}`}
-                value={formData.answers}
-                onChange={(html) => setFormData((prev) => ({ ...prev, answers: html }))}
-                disabled={loading}
-                placeholder="Paste from Word or compose here. Formatting is preserved when you save."
-              />
-            </Box>
-          )}
+          {/* Answers */}
+          <Box>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: 'text.secondary' }}>
+              Answer — rich text (headings, lists, tables, links, colors…)
+            </Typography>
+            <RichTextEditor
+              key={`${open}-${questionId || 'new'}-${String(initialData._id || '')}`}
+              value={formData.answers}
+              onChange={(html) => setFormData((prev) => ({ ...prev, answers: html }))}
+              disabled={loading}
+              placeholder="Paste from Word or compose here. Formatting is preserved when you save."
+            />
+          </Box>
 
           {/* Sample Code */}
           <Box sx={{ position: 'relative' }}>

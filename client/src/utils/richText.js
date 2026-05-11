@@ -70,6 +70,29 @@ export function parseAnswersFromApi(answers) {
   return flat;
 }
 
+export const QUESTION_TYPES = ['coding', 'theory', 'notes'];
+
+/**
+ * Older DB documents may omit `questionType`. Treat as coding when the record
+ * has sample code and no meaningful answer (typical LeetCode-style entries).
+ */
+export function coalesceQuestionType(data) {
+  const d = data || {};
+  const t = d.questionType;
+  if (QUESTION_TYPES.includes(t)) return t;
+  const hasCode = String(d.sampleCode || '').trim().length > 0;
+  const parts = parseAnswersFromApi(d.answers);
+  const hasMeaningfulAnswer = parts.some((x) => {
+    const s = String(x)
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .trim();
+    return s.length > 0;
+  });
+  if (hasCode && !hasMeaningfulAnswer) return 'coding';
+  return 'theory';
+}
+
 export function escapeHtml(s) {
   return String(s)
     .replace(/&/g, '&amp;')
