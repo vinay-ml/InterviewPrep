@@ -7,7 +7,6 @@ import {
   useAddQuestionMutation,
 } from '../redux/api/QuestionsApi';
 import {
-  Grid,
   Typography,
   Box,
   CircularProgress,
@@ -124,87 +123,114 @@ const CategoryQuestions = () => {
 
   return (
     <>
-      <Box sx={{ p: 1, backgroundColor: (theme) => theme.palette.background.default }}>
+      <Box
+        sx={{
+          py: 1,
+          px: 0,
+          minWidth: 0,
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          backgroundColor: (theme) => theme.palette.background.default,
+        }}
+      >
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '10px',
-            marginTop: '10px',
+            width: '100%',
+            maxWidth: 'min(100%, 1920px)',
+            mx: 'auto',
+            minWidth: 0,
+            boxSizing: 'border-box',
+            px: { xs: 1.5, sm: 2, md: 3.5, lg: 4 },
           }}
         >
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setOpenModal(true)}
-            disabled={disableAddAction}
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              columnGap: 2,
+              rowGap: 1.5,
+              marginBottom: '10px',
+              marginTop: '10px',
+            }}
           >
-            {isMobile ? '+ Add' : `+ Add ${category} interview question`}
-          </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setOpenModal(true)}
+              disabled={disableAddAction}
+            >
+              {isMobile ? '+ Add' : `+ Add ${category} interview question`}
+            </Button>
+
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 1,
+                alignItems: 'center',
+              }}
+            >
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0, alignItems: 'center' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedQuestionTypes.coding}
+                      onChange={() => handleCheckboxChange('coding')}
+                      color="primary"
+                    />
+                  }
+                  label="Coding"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedQuestionTypes.theory}
+                      onChange={() => handleCheckboxChange('theory')}
+                      color="primary"
+                    />
+                  }
+                  label="Theory"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedQuestionTypes.notes}
+                      onChange={() => handleCheckboxChange('notes')}
+                      color="primary"
+                    />
+                  }
+                  label="Notes"
+                />
+              </Box>
+            </Box>
+          </Box>
 
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'row',
-              gap: 1,
-              alignItems: 'center',
+              flexDirection: 'column',
+              gap: 5,
+              px: 0,
+              py: { xs: 2, md: 2 },
+              minWidth: 0,
+              width: '100%',
             }}
           >
-            <Box sx={{ display: 'flex', gap: 0, mr: -1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedQuestionTypes.coding}
-                    onChange={() => handleCheckboxChange('coding')}
-                    color="primary"
-                  />
-                }
-                label="Coding"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedQuestionTypes.theory}
-                    onChange={() => handleCheckboxChange('theory')}
-                    color="primary"
-                  />
-                }
-                label="Theory"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedQuestionTypes.notes}
-                    onChange={() => handleCheckboxChange('notes')}
-                    color="primary"
-                  />
-                }
-                label="Notes"
-              />
-            </Box>
+            {filteredQuestions?.map((question, index) => (
+              <Box key={question._id} sx={{ minWidth: 0, width: '100%', maxWidth: '100%' }}>
+                <QuestionCard
+                  question={question}
+                  onDelete={handleDeleteQuestion}
+                  onDeleteImage={handleDeleteImage}
+                  index={index}
+                />
+              </Box>
+            ))}
           </Box>
         </Box>
-
-        <Grid
-          container
-          spacing={5}
-          sx={{
-            p: { xs: 0, md: 3 },
-            pt: { xs: 2, md: 3 },
-          }}
-        >
-          {filteredQuestions?.map((question, index) => (
-            <Grid item xs={12} md={12} key={question._id}>
-              <QuestionCard
-                question={question}
-                onDelete={handleDeleteQuestion}
-                onDeleteImage={handleDeleteImage}
-                index={index}
-              />
-            </Grid>
-          ))}
-        </Grid>
 
         <AddQuestionModal
           open={openModal}

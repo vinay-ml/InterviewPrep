@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -15,36 +15,62 @@ import {
   IconButton,
   CircularProgress,
   Typography,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { toast } from "react-toastify";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
-import {
-  useAddQuestionMutation,
-  useUpdateQuestionMutation,
-} from "../redux/api/QuestionsApi";
-import useLanguage from "../hooks/useLanguage";
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { toast } from 'react-toastify';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useAddQuestionMutation, useUpdateQuestionMutation } from '../redux/api/QuestionsApi';
+import useLanguage from '../hooks/useLanguage';
+import RichTextEditor from './RichTextEditor';
+import { answersToEditorHtml, serializeAnswersForApi } from '../utils/richText';
+
+const EMPTY_FORM = {
+  title: '',
+  answers: '',
+  sampleCode: '',
+  referenceURLs: '',
+  questionType: '',
+  images: [],
+};
+
+function normalizeFormShape(data) {
+  const d = data || EMPTY_FORM;
+  return {
+    title: d.title ?? '',
+    answers: answersToEditorHtml(d.answers),
+    sampleCode: d.sampleCode ?? '',
+    referenceURLs: Array.isArray(d.referenceURLs)
+      ? d.referenceURLs.filter(Boolean).join(',')
+      : (d.referenceURLs ?? ''),
+    questionType: d.questionType ?? '',
+    images: Array.isArray(d.images) ? [...d.images] : [],
+  };
+}
 
 const AddQuestionModal = ({
   open,
   onClose,
   technology,
-  mode = "add",
+  mode = 'add',
   initialData = {
-    title: "",
-    answers: "",
-    sampleCode: "",
-    referenceURLs: "",
-    questionType: "",
+    title: '',
+    answers: '',
+    sampleCode: '',
+    referenceURLs: '',
+    questionType: '',
     images: [],
   },
   questionId = null,
   accessCodePrefix,
 }) => {
-  const [formData, setFormData] = useState(initialData);
-  const [imagePreviews, setImagePreviews] = useState(
-    initialData.images.map((img) => ({ src: img, isUploaded: true }))
+  const [formData, setFormData] = useState(() => normalizeFormShape(initialData));
+  const [imagePreviews, setImagePreviews] = useState(() =>
+    (initialData.images || []).map((img) =>
+      typeof img === 'string'
+        ? { src: img, isUploaded: true }
+        : { src: URL.createObjectURL(img), file: img, isUploaded: false }
+    )
   );
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
@@ -52,6 +78,26 @@ const AddQuestionModal = ({
   const [addQuestion] = useAddQuestionMutation();
   const [updateQuestion] = useUpdateQuestionMutation();
   const language = useLanguage();
+
+  useEffect(() => {
+    if (!open) return;
+
+    setFormData(normalizeFormShape(initialData));
+
+    const imgs = initialData.images || [];
+    setImagePreviews(
+      imgs.map((img) =>
+        typeof img === 'string'
+          ? { src: img, isUploaded: true }
+          : {
+              src: URL.createObjectURL(img),
+              file: img,
+              isUploaded: false,
+            }
+      )
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- resync only when dialog opens or edited question identity changes (not full initialData)
+  }, [open, questionId, initialData._id, mode]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -96,35 +142,38 @@ const AddQuestionModal = ({
   const handleSubmit = async () => {
     setLoading(true);
     const formattedData = new FormData();
-    formattedData.append("title", formData.title);
-    formattedData.append("answers", formData.answers);
-    formattedData.append("sampleCode", formData.sampleCode);
-    formattedData.append("referenceURLs", formData.referenceURLs);
-    formattedData.append("questionType", formData.questionType);
-    formattedData.append("category", technology);
+    formattedData.append('title', formData.title);
+    formattedData.append(
+      'answers',
+      formData.questionType === 'coding'
+        ? serializeAnswersForApi('')
+        : serializeAnswersForApi(formData.answers)
+    );
+    formattedData.append('sampleCode', formData.sampleCode);
+    formattedData.append('referenceURLs', formData.referenceURLs);
+    formattedData.append('questionType', formData.questionType);
+    formattedData.append('category', technology);
 
     // Include new images in the formData
     formData.images.forEach((image) => {
       if (image instanceof File) {
-        formattedData.append("images", image);
+        formattedData.append('images', image);
       }
     });
 
     try {
-      if (mode === "add") {
+      if (mode === 'add') {
         await addQuestion(formattedData);
-        toast.success("Question added successfully!");
-      } else if (mode === "update" && questionId) {
+        toast.success('Question added successfully!');
+      } else if (mode === 'update' && questionId) {
         await updateQuestion({ id: questionId, formData: formattedData });
-        toast.success("Question updated successfully!");
+        toast.success('Question updated successfully!');
       }
-      setFormData(initialData);
-      setImagePreviews(
-        initialData.images.map((img) => ({ src: img, isUploaded: true }))
-      );
+      setFormData(EMPTY_FORM);
+      setImagePreviews([]);
       onClose(); // Close modal after success
     } catch (error) {
-      toast.error("Operation failed. Please try again.");
+      toast.error('Operation failed. Please try again.');
     } finally {
       setLoading(false); // Stop loader
     }
@@ -138,45 +187,45 @@ const AddQuestionModal = ({
       maxWidth="md"
       BackdropProps={{
         sx: {
-          backdropFilter: "blur(5px)",
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          backdropFilter: 'blur(5px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
         },
       }}
     >
       {loading && (
         <Box
           sx={{
-            position: "absolute",
+            position: 'absolute',
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
             zIndex: 1301,
           }}
         >
           <CircularProgress />
           <Typography
             variant="body1"
-            sx={{ marginTop: "16px", color: "text.secondary", textAlign: "center" }}
+            sx={{ marginTop: '16px', color: 'text.secondary', textAlign: 'center' }}
           >
-            {mode === "add"
-              ? "Saving your question... Please wait!"
-              : "Updating your question... Please wait!"}
+            {mode === 'add'
+              ? 'Saving your question... Please wait!'
+              : 'Updating your question... Please wait!'}
           </Typography>
         </Box>
       )}
       <DialogTitle>
-        {mode === "add"
+        {mode === 'add'
           ? `Add new ${technology} interview question or Notes`
           : `Update this ${technology} interview question`}
       </DialogTitle>
       <DialogContent>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {/* Question Type */}
           <FormControl fullWidth>
             <InputLabel id="question-type-label">Question Type</InputLabel>
@@ -189,9 +238,7 @@ const AddQuestionModal = ({
             >
               <MenuItem value="coding">Coding question</MenuItem>
               <MenuItem value="theory">Theory question</MenuItem>
-              {accessCodePrefix === "AD" && (
-                <MenuItem value="notes">Notes</MenuItem>
-              )}
+              {accessCodePrefix === 'AD' && <MenuItem value="notes">Notes</MenuItem>}
             </Select>
           </FormControl>
 
@@ -207,25 +254,29 @@ const AddQuestionModal = ({
           />
 
           {/* Conditional Answers */}
-          {formData.questionType !== "coding" && (
-            <TextField
-              label="Answer (use chatGPT to get small answer then paste here)"
-              name="answers"
-              multiline
-              rows={7}
-              value={formData.answers}
-              onChange={handleInputChange}
-            />
+          {formData.questionType !== 'coding' && (
+            <Box>
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 600, color: 'text.secondary' }}>
+                Answer — rich text (headings, lists, tables, links, colors…)
+              </Typography>
+              <RichTextEditor
+                key={`${open}-${questionId || 'new'}-${String(initialData._id || '')}`}
+                value={formData.answers}
+                onChange={(html) => setFormData((prev) => ({ ...prev, answers: html }))}
+                disabled={loading}
+                placeholder="Paste from Word or compose here. Formatting is preserved when you save."
+              />
+            </Box>
           )}
 
           {/* Sample Code */}
-          <Box sx={{ position: "relative" }}>
+          <Box sx={{ position: 'relative' }}>
             <Typography
               variant="body2"
               sx={{
-                fontWeight: "bold",
-                marginBottom: "8px",
-                color: "text.secondary",
+                fontWeight: 'bold',
+                marginBottom: '8px',
+                color: 'text.secondary',
               }}
             >
               Code (use chatGPT to get the Code then paste here)
@@ -240,22 +291,22 @@ const AddQuestionModal = ({
               fullWidth
               InputProps={{
                 style: {
-                  background: "#1e1e1e",
-                  color: "white",
-                  fontFamily: "monospace",
-                  borderRadius: "5px",
-                  padding: "10px",
-                  fontSize: "14px",
-                  lineHeight: "1.5",
+                  background: '#1e1e1e',
+                  color: 'white',
+                  fontFamily: 'monospace',
+                  borderRadius: '5px',
+                  padding: '10px',
+                  fontSize: '14px',
+                  lineHeight: '1.5',
                 },
               }}
             />
             {formData.sampleCode.trim() && (
-              <Box sx={{ marginTop: "16px" }}>
+              <Box sx={{ marginTop: '16px' }}>
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    color: "text.secondary",
+                    color: 'text.secondary',
                     // fontWeight: "bold",
                   }}
                 >
@@ -265,12 +316,12 @@ const AddQuestionModal = ({
                   language={language}
                   style={dracula}
                   customStyle={{
-                    background: "#1e1e1e",
-                    color: "#d4d4d4",
-                    borderRadius: "5px",
-                    padding: "16px",
-                    fontSize: "14px",
-                    overflowX: "auto",
+                    background: '#1e1e1e',
+                    color: '#d4d4d4',
+                    borderRadius: '5px',
+                    padding: '16px',
+                    fontSize: '14px',
+                    overflowX: 'auto',
                   }}
                 >
                   {formData.sampleCode}
@@ -288,40 +339,40 @@ const AddQuestionModal = ({
 
           {/* Image Previews */}
           {imagePreviews.length > 0 && (
-            <Grid container spacing={1} sx={{ marginTop: "10px" }}>
+            <Grid container spacing={1} sx={{ marginTop: '10px' }}>
               {imagePreviews.map((preview, index) => (
                 <Grid item xs={2} key={index}>
                   <Box
                     sx={{
-                      position: "relative",
-                      width: "100%",
-                      paddingTop: "100%",
-                      borderRadius: "8px",
-                      overflow: "hidden",
-                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+                      position: 'relative',
+                      width: '100%',
+                      paddingTop: '100%',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
                     }}
                   >
                     <img
                       src={preview.src}
                       alt={`Preview ${index + 1}`}
                       style={{
-                        position: "absolute",
+                        position: 'absolute',
                         top: 0,
                         left: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
                       }}
                     />
                     <IconButton
                       sx={{
-                        position: "absolute",
+                        position: 'absolute',
                         top: 5,
                         right: 5,
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        color: "white",
-                        "&:hover": {
-                          backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        color: 'white',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
                         },
                       }}
                       onClick={() => handleRemoveImage(index)}
@@ -339,9 +390,9 @@ const AddQuestionModal = ({
             variant="outlined"
             component="label"
             sx={{
-              marginTop: "10px",
-              width: "auto",
-              alignSelf: "flex-start",
+              marginTop: '10px',
+              width: 'auto',
+              alignSelf: 'flex-start',
             }}
           >
             Upload Reference Images (Optional)
@@ -357,16 +408,11 @@ const AddQuestionModal = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button
-          sx={{ marginRight: "30px" }}
-          onClick={onClose}
-          color="secondary"
-          disabled={loading}
-        >
+        <Button sx={{ marginRight: '30px' }} onClick={onClose} color="secondary" disabled={loading}>
           Cancel
         </Button>
         <Button
-          sx={{ marginRight: "30px" }}
+          sx={{ marginRight: '30px' }}
           onClick={handleSubmit}
           variant="contained"
           color="primary"

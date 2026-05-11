@@ -8,9 +8,28 @@
     "@mui/icons-material": "^6.2.1",
     "@mui/material": "^6.2.1",
     "@reduxjs/toolkit": "^2.5.0",
+    "@tiptap/extension-code-block-lowlight": "^3.23.1",
+    "@tiptap/extension-color": "^3.23.1",
+    "@tiptap/extension-font-family": "^3.23.1",
+    "@tiptap/extension-highlight": "^3.23.1",
+    "@tiptap/extension-image": "^3.23.1",
+    "@tiptap/extension-link": "^3.23.1",
+    "@tiptap/extension-placeholder": "^3.23.1",
+    "@tiptap/extension-table": "^3.23.1",
+    "@tiptap/extension-table-cell": "^3.23.1",
+    "@tiptap/extension-table-header": "^3.23.1",
+    "@tiptap/extension-table-row": "^3.23.1",
+    "@tiptap/extension-text-align": "^3.23.1",
+    "@tiptap/extension-text-style": "^3.23.1",
+    "@tiptap/extension-underline": "^3.23.1",
+    "@tiptap/react": "^3.23.1",
+    "@tiptap/starter-kit": "^3.23.1",
     "cra-template": "1.2.0",
+    "dompurify": "^3.4.2",
+    "highlight.js": "^11.11.1",
     "interviewprep": "file:..",
     "jwt-decode": "^4.0.0",
+    "lowlight": "^3.3.0",
     "prismjs": "^1.29.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -44,5 +63,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "react-syntax-highlighter": {
+      "highlight.js": "10.7.3",
+      "lowlight": "1.20.0"
+    }
   }
 }
