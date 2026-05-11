@@ -38,28 +38,65 @@ const Navbar = () => {
     setDrawerOpen(open);
   };
 
-  const navLinks = [
-    { text: 'JavaScript', to: '/javascript' },
-    { text: 'ReactJS', to: '/reactjs' },
-    { text: 'HTML', to: '/html' },
-    { text: 'CSS', to: '/css' },
-    { text: 'NodeJS', to: '/nodejs' },
-    { text: 'SQL', to: '/sql' },
-    { text: 'MongoDB vs Sequelize', to: '/MongoDB_Sequelize' },
-    { text: 'Elastic || Open search', to: '/Elastic||Open search' },
-    { text: 'Redis ', to: '/redis ' },
-    { text: 'RabbitMQ ', to: '/rabbitMQ ' },
-    { text: 'Kafka ', to: '/kafka ' },
-    { text: 'Python', to: '/python' },
-    { text: 'GenAI with PY', to: '/GenAI with PY' },
-    { text: 'GenAI with JS', to: '/GenAI with JS' },
-    { text: 'Docker', to: '/docker' },
-    { text: 'Kubernetes', to: '/kubernetes' },
-    { text: 'Jenkins', to: '/jenkins' },
-    { text: 'AWS for hosting', to: '/aws for hosting' },
-    { text: 'System design', to: '/system design' },
-    { text: 'PowerBI', to: '/powerbi' },
-    { text: 'Miscellaneous', to: '/miscellaneous' },
+  const navSections = [
+    {
+      category: 'Frontend',
+      links: [
+        { text: 'JavaScript', to: '/javascript' },
+        { text: 'ReactJS', to: '/reactjs' },
+        { text: 'HTML', to: '/html' },
+        { text: 'CSS', to: '/css' },
+      ],
+    },
+    {
+      category: 'Backend',
+      links: [
+        { text: 'NodeJS', to: '/nodejs' },
+        { text: 'Python', to: '/python' },
+        { text: 'System design', to: '/system design' },
+      ],
+    },
+    {
+      category: 'Data & Storage',
+      links: [
+        { text: 'SQL', to: '/sql' },
+        { text: 'MongoDB vs Sequelize', to: '/MongoDB_Sequelize' },
+        { text: 'Elastic || Open search', to: '/Elastic||Open search' },
+        { text: 'Redis ', to: '/redis ' },
+      ],
+    },
+    {
+      category: 'Event Messaging',
+      links: [
+        { text: 'RabbitMQ ', to: '/rabbitMQ ' },
+        { text: 'Kafka ', to: '/kafka ' },
+      ],
+    },
+    {
+      category: 'GenAI & Applied AI',
+      links: [
+        { text: 'GenAI with PY', to: '/GenAI with PY' },
+        { text: 'GenAI with JS', to: '/GenAI with JS' },
+      ],
+    },
+    {
+      category: 'DevOps',
+      links: [
+        { text: 'Linux', to: '/linux' },
+        { text: 'Docker', to: '/docker' },
+        { text: 'Kubernetes', to: '/kubernetes' },
+        { text: 'Jenkins', to: '/jenkins' },
+        { text: 'AWS', to: '/aws' },
+      ],
+    },
+    {
+      category: 'Data Analytics',
+      links: [{ text: 'PowerBI', to: '/powerbi' }],
+    },
+    {
+      category: 'More',
+      links: [{ text: 'Miscellaneous', to: '/miscellaneous' }],
+    },
   ];
 
   // Path and current section extraction
@@ -162,22 +199,70 @@ const Navbar = () => {
             Navigation
           </Typography>
           <Divider />
-          <List>
-            {navLinks.map((link) => (
-              <ListItem key={link.text} disablePadding>
-                <ListItemButton
-                  component="a"
-                  href={link.to}
-                  onClick={handleNavLinkClick(link.to)}
+          <List sx={{ py: 1, px: 1 }}>
+            {navSections.map((section, sectionIndex) => (
+              <Box key={section.category}>
+                <Box
                   sx={{
-                    '&.active': {
-                      backgroundColor: 'action.selected',
-                    },
+                    px: 1.2,
+                    py: 1.1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
-                  <ListItemText primary={link.text} />
-                </ListItemButton>
-              </ListItem>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      px: 1.4,
+                      py: 0.45,
+                      borderRadius: '999px',
+                      backgroundColor: 'rgba(34, 197, 94, 0.16)',
+                      color: '#86efac',
+                      fontWeight: 700,
+                      letterSpacing: '0.03em',
+                      fontSize: '0.78rem',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {section.category}
+                  </Typography>
+                </Box>
+                {section.links.map((link) => (
+                  <ListItem key={link.text} disablePadding>
+                    <ListItemButton
+                      component="a"
+                      href={link.to}
+                      onClick={handleNavLinkClick(link.to)}
+                      sx={{
+                        py: 0.75,
+                        px: 1.4,
+                        borderRadius: '10px',
+                        mb: 0.35,
+                        transition: 'all 0.18s ease',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          transform: 'translateX(-2px)',
+                        },
+                        '&.active': {
+                          backgroundColor: 'rgba(125, 211, 252, 0.16)',
+                        },
+                      }}
+                    >
+                      <ListItemText primary={link.text} />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+                {sectionIndex !== navSections.length - 1 && (
+                  <Divider
+                    sx={{
+                      mt: 1,
+                      mb: 0.7,
+                      borderColor: 'rgba(34, 197, 94, 0.35)',
+                    }}
+                  />
+                )}
+              </Box>
             ))}
           </List>
         </Box>

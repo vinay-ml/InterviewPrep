@@ -5,6 +5,7 @@ import { store } from './redux/store';
 import App from './App';
 import { theme } from './MuiStyles/theme.js';
 import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'highlight.js/styles/atom-one-dark.min.css';
@@ -14,6 +15,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Provider store={store}>
         <App />
         <ToastContainer

@@ -35,6 +35,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
   const [imageLoaded, setImageLoaded] = useState({});
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [showCode, setShowCode] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const [showImage, setShowImage] = useState({});
 
   const token = localStorage.getItem('token');
@@ -85,6 +86,17 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
 
   const answerSlices = parseAnswersFromApi(question.answers);
   const hasAnswers = answerSlices.some((ans) => ans.trim() !== '');
+  const answerTextLength = answerSlices.reduce(
+    (sum, ans) =>
+      sum +
+      ans
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .trim().length,
+    0
+  );
+  const shouldCollapseAnswer = answerTextLength > 1100;
+  const canShowAnswerContent = !shouldCollapseAnswer || showAnswer;
 
   return (
     <Paper
@@ -114,35 +126,46 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
 
           {hasAnswers && (
             <Box sx={{ marginTop: '12px' }}>
-              {answerSlices.map(
-                (answer, i) =>
-                  answer.trim() &&
-                  (looksLikeHtml(answer) ? (
-                    <RichAnswerHtml key={i} html={answer} />
-                  ) : (
-                    <List
-                      key={i}
-                      component="ul"
-                      sx={{
-                        listStyleType: 'disc',
-                        paddingLeft: { xs: '16px', sm: '24px', md: '28px' },
-                      }}
-                    >
-                      <ListItem
-                        component="li"
+              {shouldCollapseAnswer && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => setShowAnswer((prev) => !prev)}
+                  sx={{ marginBottom: canShowAnswerContent ? '10px' : 0 }}
+                >
+                  {showAnswer ? 'Hide answer' : 'Show answer'}
+                </Button>
+              )}
+              {canShowAnswerContent &&
+                answerSlices.map(
+                  (answer, i) =>
+                    answer.trim() &&
+                    (looksLikeHtml(answer) ? (
+                      <RichAnswerHtml key={i} html={answer} />
+                    ) : (
+                      <List
+                        key={i}
+                        component="ul"
                         sx={{
-                          display: 'list-item',
-                          paddingLeft: '0px',
-                          fontSize: { xs: '0.95rem', sm: '1rem', md: '1.2rem' },
+                          listStyleType: 'disc',
+                          paddingLeft: { xs: '16px', sm: '24px', md: '28px' },
                         }}
                       >
-                        <Typography component="span" sx={{ whiteSpace: 'pre-wrap' }}>
-                          {answer}
-                        </Typography>
-                      </ListItem>
-                    </List>
-                  ))
-              )}
+                        <ListItem
+                          component="li"
+                          sx={{
+                            display: 'list-item',
+                            paddingLeft: '0px',
+                            fontSize: { xs: '0.95rem', sm: '1rem', md: '1.2rem' },
+                          }}
+                        >
+                          <Typography component="span" sx={{ whiteSpace: 'pre-wrap' }}>
+                            {answer}
+                          </Typography>
+                        </ListItem>
+                      </List>
+                    ))
+                )}
             </Box>
           )}
 
@@ -154,7 +177,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                 onClick={() => setShowCode((prev) => !prev)}
                 sx={{ marginTop: '10px' }}
               >
-                {showCode ? 'Hide Code' : 'Show Me Code'}
+                {showCode ? 'Hide code' : 'Show code'}
               </Button>
               {showCode && (
                 <Box
