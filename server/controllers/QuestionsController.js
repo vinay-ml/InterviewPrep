@@ -1,6 +1,23 @@
-const Questions = require("../models/QuestionsModel");
-const cloudinary = require("../config/cloudinaryConfig");
-const { getCloudinaryPublicId } = require("../utils/cloudinaryUtils");
+const Questions = require('../models/QuestionsModel');
+const cloudinary = require('../config/cloudinaryConfig');
+const { getCloudinaryPublicId } = require('../utils/cloudinaryUtils');
+
+/** Supports legacy `a,,b` segments and JSON arrays (rich HTML) without delimiter collisions. */
+function normalizeAnswersField(answers) {
+  if (answers == null || answers === '') return [];
+  const raw = String(answers).trim();
+  if (raw.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.map((x) => String(x ?? ''));
+      }
+    } catch (_) {
+      /* fall through to legacy split */
+    }
+  }
+  return String(answers).split(',,');
+}
 
 // ** Get All Questions by Category **
 exports.getAllQuestionsByCategory = async (req, res) => {
@@ -13,7 +30,7 @@ exports.getAllQuestionsByCategory = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error fetching questions",
+      message: 'Error fetching questions',
       error: error.message,
     });
   }
@@ -22,24 +39,17 @@ exports.getAllQuestionsByCategory = async (req, res) => {
 // ** Add a New Question **
 exports.addQuestion = async (req, res) => {
   try {
-    const {
-      title,
-      answers,
-      sampleCode,
-      referenceURLs,
-      questionType,
-      category,
-    } = req.body;
+    const { title, answers, sampleCode, referenceURLs, questionType, category } = req.body;
 
     // Upload images to Cloudinary and store their URLs
     const images = req.files ? req.files.map((file) => file.path) : [];
 
     const newQuestion = new Questions({
       title,
-      answers: answers.split(",,"),
+      answers: normalizeAnswersField(answers),
       sampleCode,
       images,
-      referenceURLs: referenceURLs.split(","),
+      referenceURLs: referenceURLs.split(','),
       questionType,
       category,
     });
@@ -51,7 +61,7 @@ exports.addQuestion = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error adding question",
+      message: 'Error adding question',
       error: error.message,
     });
   }
@@ -61,21 +71,18 @@ exports.addQuestion = async (req, res) => {
 exports.updateQuestion = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, answers, sampleCode, referenceURLs, questionType } =
-      req.body;
+    const { title, answers, sampleCode, referenceURLs, questionType } = req.body;
 
     const question = await Questions.findById(id);
     if (!question) {
-      return res.status(404).json({ message: "Question not found" });
+      return res.status(404).json({ message: 'Question not found' });
     }
 
     // Update fields
     question.title = title || question.title;
-    question.answers = answers ? answers.split(",,") : question.answers;
+    question.answers = answers != null ? normalizeAnswersField(answers) : question.answers;
     question.sampleCode = sampleCode || question.sampleCode;
-    question.referenceURLs = referenceURLs
-      ? referenceURLs.split(",")
-      : question.referenceURLs;
+    question.referenceURLs = referenceURLs ? referenceURLs.split(',') : question.referenceURLs;
     question.questionType = questionType || question.questionType;
 
     // If new images are uploaded, add them to the existing array
@@ -86,12 +93,12 @@ exports.updateQuestion = async (req, res) => {
 
     await question.save();
     res.status(200).json({
-      message: "Question updated successfully",
+      message: 'Question updated successfully',
       data: question,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error updating question",
+      message: 'Error updating question',
       error: error.message,
     });
   }
@@ -104,13 +111,11 @@ exports.deleteQuestionImage = async (req, res) => {
 
     const question = await Questions.findById(id);
     if (!question) {
-      return res.status(404).json({ message: "Question not found" });
+      return res.status(404).json({ message: 'Question not found' });
     }
 
     if (!question.images.includes(imageUrl)) {
-      return res
-        .status(404)
-        .json({ message: "Image not found in this question" });
+      return res.status(404).json({ message: 'Image not found in this question' });
     }
 
     const publicId = getCloudinaryPublicId(imageUrl);
@@ -121,12 +126,12 @@ exports.deleteQuestionImage = async (req, res) => {
     await question.save();
 
     res.status(200).json({
-      message: "Image deleted successfully",
+      message: 'Image deleted successfully',
       data: question,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error deleting image",
+      message: 'Error deleting image',
       error: error.message,
     });
   }
@@ -139,7 +144,7 @@ exports.deleteQuestion = async (req, res) => {
 
     const question = await Questions.findById(id);
     if (!question) {
-      return res.status(404).json({ message: "Question not found" });
+      return res.status(404).json({ message: 'Question not found' });
     }
 
     // Delete all associated images in Cloudinary
@@ -152,11 +157,11 @@ exports.deleteQuestion = async (req, res) => {
     await Questions.findByIdAndDelete(id);
 
     res.status(200).json({
-      message: "Question and associated images deleted successfully",
+      message: 'Question and associated images deleted successfully',
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error deleting question",
+      message: 'Error deleting question',
       error: error.message,
     });
   }

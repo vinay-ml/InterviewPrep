@@ -23,6 +23,8 @@ import { jwtDecode } from 'jwt-decode';
 import { useLocation } from 'react-router-dom';
 import AddQuestionModal from './AddQuestionModal';
 import useLanguage from '../hooks/useLanguage';
+import { looksLikeHtml, parseAnswersFromApi } from '../utils/richText';
+import RichAnswerHtml from './RichAnswerHtml';
 
 const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) => {
   const [deletingQuestion, setDeletingQuestion] = useState(false);
@@ -81,16 +83,22 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
     setUpdateModalOpen(false);
   };
 
-  const hasAnswers = question.answers && question.answers.some((ans) => ans.trim() !== '');
+  const answerSlices = parseAnswersFromApi(question.answers);
+  const hasAnswers = answerSlices.some((ans) => ans.trim() !== '');
 
   return (
-    <Paper elevation={24} sx={{ borderRadius: '10px' }}>
+    <Paper
+      elevation={24}
+      sx={{ borderRadius: '10px', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' }}
+    >
       <Card
         elevation={8}
         sx={{
           borderRadius: '10px',
           overflow: 'hidden',
           backgroundColor: 'background.paper',
+          maxWidth: '100%',
+          minWidth: 0,
         }}
       >
         <CardContent>
@@ -105,30 +113,37 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
           </Typography>
 
           {hasAnswers && (
-            <List
-              component="ul"
-              sx={{
-                listStyleType: 'disc',
-                paddingLeft: { xs: '16px', sm: '24px', md: '28px' },
-              }}
-            >
-              {question.answers.map(
+            <Box sx={{ marginTop: '12px' }}>
+              {answerSlices.map(
                 (answer, i) =>
-                  answer.trim() && (
-                    <ListItem
+                  answer.trim() &&
+                  (looksLikeHtml(answer) ? (
+                    <RichAnswerHtml key={i} html={answer} />
+                  ) : (
+                    <List
                       key={i}
-                      component="li"
+                      component="ul"
                       sx={{
-                        display: 'list-item',
-                        paddingLeft: '0px',
-                        fontSize: { xs: '0.95rem', sm: '1rem', md: '1.2rem' },
+                        listStyleType: 'disc',
+                        paddingLeft: { xs: '16px', sm: '24px', md: '28px' },
                       }}
                     >
-                      {answer}
-                    </ListItem>
-                  )
+                      <ListItem
+                        component="li"
+                        sx={{
+                          display: 'list-item',
+                          paddingLeft: '0px',
+                          fontSize: { xs: '0.95rem', sm: '1rem', md: '1.2rem' },
+                        }}
+                      >
+                        <Typography component="span" sx={{ whiteSpace: 'pre-wrap' }}>
+                          {answer}
+                        </Typography>
+                      </ListItem>
+                    </List>
+                  ))
               )}
-            </List>
+            </Box>
           )}
 
           {question.sampleCode && question.sampleCode.trim() && (
@@ -142,20 +157,32 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                 {showCode ? 'Hide Code' : 'Show Me Code'}
               </Button>
               {showCode && (
-                <SyntaxHighlighter
-                  language={language}
-                  style={dracula}
-                  customStyle={{
-                    background: '#1e1e1e',
-                    color: '#d4d4d4',
-                    borderRadius: '5px',
-                    padding: '20px',
-                    fontSize: '14px',
+                <Box
+                  sx={{
+                    mt: 1,
+                    maxWidth: '100%',
+                    minWidth: 0,
                     overflowX: 'auto',
+                    borderRadius: '5px',
                   }}
                 >
-                  {question.sampleCode}
-                </SyntaxHighlighter>
+                  <SyntaxHighlighter
+                    language={language}
+                    style={dracula}
+                    customStyle={{
+                      background: '#1e1e1e',
+                      color: '#d4d4d4',
+                      borderRadius: '5px',
+                      padding: '20px',
+                      fontSize: '14px',
+                      margin: 0,
+                      overflowX: 'auto',
+                      maxWidth: '100%',
+                    }}
+                  >
+                    {question.sampleCode}
+                  </SyntaxHighlighter>
+                </Box>
               )}
             </>
           )}
@@ -174,6 +201,8 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                       gutterBottom
                       sx={{
                         marginTop: '5px',
+                        overflowWrap: 'anywhere',
+                        wordBreak: 'break-word',
                         '& a': {
                           color: '#58a6ff',
                           textDecoration: 'underline',
