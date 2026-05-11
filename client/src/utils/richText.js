@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify';
 
 /** Detect stored HTML (TipTap / pasted rich content) vs plain text. */
 const HTML_TAG_RE =
-  /<\s*(p|div|span|center|section|article|main|mark|u|del|sup|sub|details|summary|h[1-6]|ul|ol|li|table|tr|td|th|thead|tbody|strong|b|em|i|s|br|hr|img|a|blockquote|pre|code|figure|figcaption|input)\b/i;
+  /<\s*(p|div|span|center|section|article|main|mark|u|del|sup|sub|details|summary|h[1-6]|ul|ol|li|table|colgroup|col|caption|tr|td|th|thead|tbody|tfoot|strong|b|em|i|s|br|hr|img|a|blockquote|pre|code|figure|figcaption|input|font)\b/i;
 
 export function looksLikeHtml(str) {
   if (str == null || typeof str !== 'string') return false;
@@ -16,6 +16,21 @@ export function looksLikeHtml(str) {
  */
 export function parseAnswersFromApi(answers) {
   const trim = (s) => String(s ?? '').trim();
+  const normalizeOne = (value) => {
+    if (value == null) return '';
+    if (typeof value === 'string') return trim(value);
+    if (typeof value === 'object') {
+      // Defensive fallback for non-schema payloads from API/migrations.
+      if (typeof value.html === 'string') return trim(value.html);
+      if (typeof value.text === 'string') return trim(value.text);
+      try {
+        return trim(JSON.stringify(value));
+      } catch (_) {
+        return '';
+      }
+    }
+    return trim(value);
+  };
 
   if (answers == null || answers === '') return [];
 
@@ -37,7 +52,7 @@ export function parseAnswersFromApi(answers) {
 
   if (!Array.isArray(answers)) return [];
 
-  const flat = answers.map((x) => trim(x)).filter((x) => x !== '');
+  const flat = answers.map((x) => normalizeOne(x)).filter((x) => x !== '');
   if (flat.length === 0) return [];
 
   if (flat.length === 1) {
@@ -70,6 +85,36 @@ export function parseAnswersFromApi(answers) {
   return flat;
 }
 
+/** Visible text after stripping tags (used for “has a real answer?” checks). */
+export function visibleTextFromAnswerHtml(htmlLike) {
+  return String(htmlLike ?? '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .trim();
+}
+
+/** True when `answers` from the API contains at least one non-empty visible segment. */
+export function hasMeaningfulAnswersFromApi(answers) {
+  return parseAnswersFromApi(answers).some((x) => visibleTextFromAnswerHtml(x).length > 0);
+}
+
+/** Rich segments that are still “content” when stripped text is empty (e.g. diagrams, tables). */
+const SUBSTANTIVE_HTML_RE = /<(img|table|video|svg|iframe|pre|hr|figure|audio)\b/i;
+
+/** Whether a single answer segment should render in the question card. */
+export function answerSegmentIsRenderable(htmlLike) {
+  const s = String(htmlLike ?? '').trim();
+  if (!s) return false;
+  if (visibleTextFromAnswerHtml(s).length > 0) return true;
+  if (looksLikeHtml(s) && SUBSTANTIVE_HTML_RE.test(s)) return true;
+  return false;
+}
+
+/** True when the API payload has at least one segment we can show (text and/or substantive HTML). */
+export function hasRenderableAnswersFromApi(answers) {
+  return parseAnswersFromApi(answers).some(answerSegmentIsRenderable);
+}
+
 export const QUESTION_TYPES = ['coding', 'theory', 'notes'];
 
 /**
@@ -81,14 +126,7 @@ export function coalesceQuestionType(data) {
   const t = d.questionType;
   if (QUESTION_TYPES.includes(t)) return t;
   const hasCode = String(d.sampleCode || '').trim().length > 0;
-  const parts = parseAnswersFromApi(d.answers);
-  const hasMeaningfulAnswer = parts.some((x) => {
-    const s = String(x)
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/&nbsp;/gi, ' ')
-      .trim();
-    return s.length > 0;
-  });
+  const hasMeaningfulAnswer = hasMeaningfulAnswersFromApi(d.answers);
   if (hasCode && !hasMeaningfulAnswer) return 'coding';
   return 'theory';
 }
