@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogActions,
   Backdrop,
-  Skeleton,
   Paper,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,7 +22,13 @@ import { jwtDecode } from 'jwt-decode';
 import { useLocation } from 'react-router-dom';
 import AddQuestionModal from './AddQuestionModal';
 import useLanguage from '../hooks/useLanguage';
-import { looksLikeHtml, parseAnswersFromApi } from '../utils/richText';
+import {
+  looksLikeHtml,
+  parseAnswersFromApi,
+  answerSegmentIsRenderable,
+  hasRenderableAnswersFromApi,
+  visibleTextFromAnswerHtml,
+} from '../utils/richText';
 import RichAnswerHtml from './RichAnswerHtml';
 
 const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) => {
@@ -32,7 +37,6 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState({});
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -85,16 +89,14 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
   };
 
   const answerSlices = parseAnswersFromApi(question.answers);
-  const hasAnswers = answerSlices.some((ans) => ans.trim() !== '');
-  const answerTextLength = answerSlices.reduce(
-    (sum, ans) =>
-      sum +
-      ans
-        .replace(/<[^>]*>/g, ' ')
-        .replace(/&nbsp;/gi, ' ')
-        .trim().length,
-    0
-  );
+  const hasRenderableAnswers = hasRenderableAnswersFromApi(question.answers);
+  const getAnswerCollapseSize = (answer) => {
+    if (!answerSegmentIsRenderable(answer)) return 0;
+    const visibleTextLength = visibleTextFromAnswerHtml(answer).length;
+    const rawHtmlLength = looksLikeHtml(answer) ? String(answer).trim().length : 0;
+    return Math.max(visibleTextLength, rawHtmlLength);
+  };
+  const answerTextLength = answerSlices.reduce((sum, ans) => sum + getAnswerCollapseSize(ans), 0);
   const shouldCollapseAnswer = answerTextLength > 1100;
   const canShowAnswerContent = !shouldCollapseAnswer || showAnswer;
 
@@ -124,7 +126,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
             Q{index + 1}: {question.title}
           </Typography>
 
-          {hasAnswers && (
+          {hasRenderableAnswers && (
             <Box sx={{ marginTop: '12px' }}>
               {shouldCollapseAnswer && (
                 <Button
@@ -139,7 +141,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
               {canShowAnswerContent &&
                 answerSlices.map(
                   (answer, i) =>
-                    answer.trim() &&
+                    answerSegmentIsRenderable(answer) &&
                     (looksLikeHtml(answer) ? (
                       <RichAnswerHtml key={i} html={answer} />
                     ) : (
@@ -270,12 +272,6 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                       borderRadius: '5px',
                       objectFit: 'cover',
                     }}
-                    onLoad={() =>
-                      setImageLoaded((prev) => ({
-                        ...prev,
-                        [image]: true,
-                      }))
-                    }
                   />
                 )}
                 <IconButton

@@ -107,8 +107,16 @@ const AddQuestionModal = ({
             }
       )
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- resync on open / question identity / server fields that affect inferred type
-  }, [open, questionId, initialData._id, mode, initialData.questionType, initialData.sampleCode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- resync on open / question identity / server fields that affect inferred type and stored answers
+  }, [
+    open,
+    questionId,
+    initialData._id,
+    mode,
+    initialData.questionType,
+    initialData.sampleCode,
+    initialData.answers,
+  ]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -154,12 +162,7 @@ const AddQuestionModal = ({
     setLoading(true);
     const formattedData = new FormData();
     formattedData.append('title', formData.title);
-    formattedData.append(
-      'answers',
-      formData.questionType === 'coding'
-        ? serializeAnswersForApi('')
-        : serializeAnswersForApi(formData.answers)
-    );
+    formattedData.append('answers', serializeAnswersForApi(formData.answers));
     formattedData.append('sampleCode', formData.sampleCode);
     formattedData.append('referenceURLs', formData.referenceURLs);
     formattedData.append('questionType', formData.questionType);
