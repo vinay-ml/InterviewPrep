@@ -137,11 +137,11 @@ const CategoryQuestions = () => {
         <Box
           sx={{
             width: '100%',
-            maxWidth: 'min(100%, 1920px)',
+            maxWidth: { xs: '100%', lg: 'min(100%, 1000px)' },
             mx: 'auto',
             minWidth: 0,
             boxSizing: 'border-box',
-            px: { xs: 1.5, sm: 2, md: 3.5, lg: 4 },
+            px: { xs: 1.5, sm: 2, md: 3, lg: 3, xl: 3.5 },
           }}
         >
           <Box

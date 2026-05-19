@@ -168,6 +168,16 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                       </List>
                     ))
                 )}
+              {shouldCollapseAnswer && showAnswer && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => setShowAnswer(false)}
+                  sx={{ marginTop: '10px' }}
+                >
+                  Hide answer
+                </Button>
+              )}
             </Box>
           )}
 

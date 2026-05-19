@@ -7,7 +7,7 @@ import { TextStyle, Color, FontFamily } from '@tiptap/extension-text-style';
 import Image from '@tiptap/extension-image';
 import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table';
 import Placeholder from '@tiptap/extension-placeholder';
-import { richTextAnswerSx, normalizeRichHtml } from '../utils/richText';
+import { richTextAnswerSx, normalizeRichHtml, escapeHtml } from '../utils/richText';
 import {
   Box,
   IconButton,
@@ -117,6 +117,148 @@ const FONT_PRESETS = [
 ];
 
 const HIGHLIGHT_COLORS = ['#fef08a', '#bbf7d0', '#bfdbfe', '#fecaca', '#e9d5ff'];
+
+const paragraphTextToLineSpans = (text) => {
+  const lines = String(text).split('\n');
+  let pos = 0;
+  return lines.map((line) => {
+    const start = pos;
+    const end = start + line.length;
+    pos = end + 1;
+    return { line, start, end };
+  });
+};
+
+const normalizeListItemText = (line) => String(line).trim();
+
+function convertColonHeaderSelectionToList(editor, listTag) {
+  if (listTag === 'ul' && editor.isActive('bulletList')) return false;
+  if (listTag === 'ol' && editor.isActive('orderedList')) return false;
+
+  const { state } = editor;
+  const { selection } = state;
+  if (selection.empty || selection.$from.parent !== selection.$to.parent) return false;
+
+  const paragraph = selection.$from.parent;
+  if (paragraph.type.name !== 'paragraph') return false;
+
+  const text = paragraph.textBetween(0, paragraph.content.size, '\n', '\n');
+  if (!text.includes('\n')) return false;
+
+  const lineSpans = paragraphTextToLineSpans(text);
+  const fromOffset = selection.$from.parentOffset;
+  const toOffset = selection.$to.parentOffset;
+  const selectedLineIndexes = lineSpans
+    .map((span, index) => ({ span, index }))
+    .filter(({ span }) => toOffset > span.start && fromOffset < span.end)
+    .map(({ index }) => index);
+
+  if (selectedLineIndexes.length === 0) return false;
+
+  const firstSelected = selectedLineIndexes[0];
+  let headerIndex = firstSelected - 1;
+  let itemStartIndex = firstSelected;
+
+  if (lineSpans[firstSelected].line.trim().endsWith(':')) {
+    headerIndex = firstSelected;
+    itemStartIndex = firstSelected + 1;
+  }
+
+  const headerLine = lineSpans[headerIndex]?.line;
+  const itemLines = selectedLineIndexes
+    .filter((index) => index >= itemStartIndex)
+    .map((index) => normalizeListItemText(lineSpans[index].line))
+    .filter((line) => line.length > 0);
+
+  if (!headerLine?.trim().endsWith(':') || itemLines.length === 0) return false;
+
+  const beforeLines = lineSpans.slice(0, headerIndex).map(({ line }) => line);
+  const afterLines = lineSpans
+    .slice(selectedLineIndexes[selectedLineIndexes.length - 1] + 1)
+    .map(({ line }) => line);
+  const paragraphHtml = (line) => `<p>${escapeHtml(line)}</p>`;
+  const listHtml = `<${listTag}>${itemLines
+    .map((line) => `<li><p>${escapeHtml(line)}</p></li>`)
+    .join('')}</${listTag}>`;
+  const html = [
+    ...beforeLines.map(paragraphHtml),
+    paragraphHtml(headerLine),
+    listHtml,
+    ...afterLines.map(paragraphHtml),
+  ].join('');
+
+  editor
+    .chain()
+    .focus()
+    .insertContentAt(
+      {
+        from: selection.$from.before(),
+        to: selection.$from.after(),
+      },
+      html
+    )
+    .run();
+
+  return true;
+}
+
+function convertCurrentLineToList(editor, listTag) {
+  if (listTag === 'ul' && editor.isActive('bulletList')) return false;
+  if (listTag === 'ol' && editor.isActive('orderedList')) return false;
+
+  const { state } = editor;
+  const { selection } = state;
+  if (!selection.empty) return false;
+
+  const paragraph = selection.$from.parent;
+  if (paragraph.type.name !== 'paragraph') return false;
+
+  const text = paragraph.textBetween(0, paragraph.content.size, '\n', '\n');
+
+  const lineSpans = paragraphTextToLineSpans(text);
+  const cursorOffset = selection.$from.parentOffset;
+  const currentLineIndex = lineSpans.findIndex(
+    (span) => cursorOffset >= span.start && cursorOffset <= span.end
+  );
+  const currentLine = lineSpans[currentLineIndex]?.line;
+  const listItemText = normalizeListItemText(currentLine);
+  if (!listItemText) return false;
+  if (!text.includes('\n') && currentLine === listItemText) return false;
+
+  const beforeLines = lineSpans.slice(0, currentLineIndex).map(({ line }) => line);
+  const afterLines = lineSpans.slice(currentLineIndex + 1).map(({ line }) => line);
+  const paragraphHtml = (line) => `<p>${escapeHtml(line)}</p>`;
+  const listHtml = `<${listTag}><li><p>${escapeHtml(listItemText)}</p></li></${listTag}>`;
+  const html = [...beforeLines.map(paragraphHtml), listHtml, ...afterLines.map(paragraphHtml)].join(
+    ''
+  );
+
+  editor
+    .chain()
+    .focus()
+    .insertContentAt(
+      {
+        from: selection.$from.before(),
+        to: selection.$from.after(),
+      },
+      html
+    )
+    .run();
+
+  return true;
+}
+
+function toggleListWithColonHeaderGuard(editor, listType) {
+  const listTag = listType === 'ordered' ? 'ol' : 'ul';
+  if (convertColonHeaderSelectionToList(editor, listTag)) return;
+  if (convertCurrentLineToList(editor, listTag)) return;
+  const chain = editor.chain().focus();
+  if (listType === 'ordered') {
+    chain.toggleOrderedList().run();
+  } else {
+    chain.toggleBulletList().run();
+  }
+}
 
 function MenuBar({ editor, disabled }) {
   const [, refresh] = useReducer((n) => n + 1, 0);
@@ -278,13 +420,13 @@ function MenuBar({ editor, disabled }) {
       <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
       {btn(
         'Bullet list',
-        () => editor.chain().focus().toggleBulletList().run(),
+        () => toggleListWithColonHeaderGuard(editor, 'bullet'),
         <FormatListBulleted fontSize="small" />,
         editor.isActive('bulletList')
       )}
       {btn(
         'Numbered list',
-        () => editor.chain().focus().toggleOrderedList().run(),
+        () => toggleListWithColonHeaderGuard(editor, 'ordered'),
         <FormatListNumbered fontSize="small" />,
         editor.isActive('orderedList')
       )}
