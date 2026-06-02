@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node server/app.js",
-    "dev": "SET NODE_ENV = DEVELOPMENT& nodemon server/app.js",
-    "prod": "SET NODE_ENV=PRODUCTION& pm2 start server/app.js --name interviewprep",
+    "dev": "NODE_ENV=DEVELOPMENT nodemon server/app.js",
+    "prod": "NODE_ENV=PRODUCTION pm2 start server/app.js --name interviewprep",
     "build": "npm install --legacy-peer-deps && npm install --legacy-peer-deps --prefix client && npm run build --prefix client",
     "pm2-restart": "pm2 restart interviewprep",
     "pm2-stop": "pm2 stop interviewprep",

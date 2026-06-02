@@ -7,7 +7,7 @@ import io from 'socket.io-client';
 const socket = io(
   window.location.hostname === 'job-interview-prep.vercel.app'
     ? 'https://job-interview-prep.vercel.app'
-    : 'http://localhost:5000'
+    : `http://${window.location.hostname}:4000`
 );
 
 // ✅ Styled green dot badge

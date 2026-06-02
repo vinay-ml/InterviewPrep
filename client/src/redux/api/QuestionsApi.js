@@ -3,7 +3,9 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const questionsApi = createApi({
   reducerPath: 'questionsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://job-interview-prep.vercel.app/api/questions',
+    baseUrl: window.location.hostname === 'job-interview-prep.vercel.app'
+      ? 'https://job-interview-prep.vercel.app/api/questions'
+      : `http://${window.location.hostname}:4000/api/questions`,
   }),
   tagTypes: ['Questions'],
   endpoints: (builder) => ({

@@ -8,6 +8,7 @@ const connectDB = require('./database/connectDB');
 const { updateAccessCodes } = require('./controllers/authController');
 const authRoutes = require('./routes/authRoutes');
 const QuestionRoutes = require('./routes/QuestionRoutes');
+const navigationRoutes = require('./routes/navigationRoutes');
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 // ✅ Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/questions', QuestionRoutes);
+app.use('/api/navigation', navigationRoutes);
 
 // ✅ Deployment logic
 const __dirname1 = path.resolve();
