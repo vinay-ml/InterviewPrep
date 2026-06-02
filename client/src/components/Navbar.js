@@ -11,14 +11,43 @@ import {
   ListItemButton,
   ListItemText,
   Divider,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  Tooltip,
 } from '@mui/material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import MenuIcon from '@mui/icons-material/Menu';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useGetNavigationConfigQuery } from '../redux/api/navigationApi';
+import AdminTopics from '../pages/AdminTopics';
 
 const getTopicPath = (topic) => topic.path || `/${topic.label.trim().toLowerCase()}`;
+
+const getStoredJwt = () => {
+  const tokenData = localStorage.getItem('token');
+
+  if (!tokenData) return null;
+
+  try {
+    return JSON.parse(tokenData).token;
+  } catch (error) {
+    return tokenData;
+  }
+};
+
+const getAccessCodePrefix = () => {
+  try {
+    const token = getStoredJwt();
+    return token ? jwtDecode(token)?.accessCode?.slice(0, 2) : '';
+  } catch (error) {
+    return '';
+  }
+};
 
 const Navbar = () => {
   const location = useLocation();
@@ -26,6 +55,7 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
   const navigate = useNavigate();
   const {
     data: navigationConfig,
@@ -35,6 +65,9 @@ const Navbar = () => {
   } = useGetNavigationConfigQuery();
   const navSections = navigationConfig?.data || [];
   const hasNavSections = navSections.length > 0;
+  const showNavigationLoading = (navigationLoading || navigationFetching) && !hasNavSections;
+  const showNavigationError = navigationError && !hasNavSections;
+  const isAdmin = getAccessCodePrefix() === 'AD';
 
   useEffect(() => {
     if (!isMobile) {
@@ -120,7 +153,32 @@ const Navbar = () => {
             )}
           </Typography>
 
-          <IconButton color="inherit" edge="end" onClick={toggleDrawer(true)}>
+          {isAdmin && (
+            <Tooltip title="Admin">
+              <IconButton
+                color="inherit"
+                onClick={() => setAdminOpen(true)}
+                sx={{
+                  mr: 1,
+                  color: '#90caf9',
+                  backgroundColor: 'rgba(144, 202, 249, 0.08)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(144, 202, 249, 0.16)',
+                  },
+                }}
+              >
+                <AdminPanelSettingsIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          <IconButton
+            color="inherit"
+            edge="end"
+            aria-label="open topic drawer"
+            data-topic-drawer-button="true"
+            onClick={toggleDrawer(true)}
+          >
             <MenuIcon />
           </IconButton>
         </Toolbar>
@@ -150,17 +208,27 @@ const Navbar = () => {
           </Typography>
           <Divider />
           <List sx={{ py: 1, px: 1 }}>
-            {(navigationLoading || navigationFetching) && (
-              <Typography variant="body2" color="text.secondary" sx={{ px: 1.4, py: 1 }}>
-                Loading topics...
-              </Typography>
+            {showNavigationLoading && (
+              <Box
+                sx={{
+                  px: 1.4,
+                  py: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.2,
+                  color: 'text.secondary',
+                }}
+              >
+                <CircularProgress size={18} />
+                <Typography variant="body2">Loading topics...</Typography>
+              </Box>
             )}
-            {navigationError && (
+            {showNavigationError && (
               <Typography variant="body2" color="error" sx={{ px: 1.4, py: 1 }}>
                 Unable to load topics. Please try again later.
               </Typography>
             )}
-            {!navigationLoading && !navigationFetching && !navigationError && !hasNavSections && (
+            {!showNavigationLoading && !showNavigationError && !hasNavSections && (
               <Typography variant="body2" color="text.secondary" sx={{ px: 1.4, py: 1 }}>
                 No topics configured yet.
               </Typography>
@@ -237,6 +305,29 @@ const Navbar = () => {
           </List>
         </Box>
       </Drawer>
+
+      <Dialog open={adminOpen} onClose={() => setAdminOpen(false)} fullWidth maxWidth="lg">
+        <DialogContent sx={{ p: 0, position: 'relative' }}>
+          <IconButton
+            aria-label="close admin modal"
+            onClick={() => setAdminOpen(false)}
+            sx={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              zIndex: 1,
+              color: 'text.secondary',
+              backgroundColor: 'background.paper',
+              '&:hover': {
+                backgroundColor: 'action.hover',
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <AdminTopics />
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -12,8 +12,8 @@ const HomePage = () => {
             className="cta-button"
             onClick={() => {
               const menuBtn =
-                document.querySelector('.MuiToolbar-root button') ||
-                document.querySelector('header button');
+                document.querySelector('[data-topic-drawer-button="true"]') ||
+                document.querySelector('button[aria-label="open topic drawer"]');
               if (menuBtn) {
                 menuBtn.click();
               }

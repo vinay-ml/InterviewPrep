@@ -5,8 +5,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import CategoryQuestions from './pages/CategoryQuestions';
 import HomePage from './pages/HomePage';
 import OnlineUsers from './pages/OnlineUsers';
-import AdminTopics from './pages/AdminTopics';
 import { jwtDecode } from 'jwt-decode';
+import { useGetNavigationConfigQuery } from './redux/api/navigationApi';
 
 const AppRoutes = () => {
   const token = localStorage.getItem('token');
@@ -22,6 +22,7 @@ const AppRoutes = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  useGetNavigationConfigQuery(undefined, { skip: location.pathname !== '/' });
 
   useEffect(() => {
     const navEntry = window.performance.getEntriesByType('navigation')[0];
@@ -42,14 +43,6 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <HomePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminTopics />
             </ProtectedRoute>
           }
         />
