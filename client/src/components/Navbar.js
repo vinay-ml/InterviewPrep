@@ -211,16 +211,25 @@ const Navbar = () => {
             {showNavigationLoading && (
               <Box
                 sx={{
-                  px: 1.4,
-                  py: 2,
+                  mx: 0.75,
+                  my: 1.2,
+                  px: 1.5,
+                  py: 1.8,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1.2,
-                  color: 'text.secondary',
+                  justifyContent: 'center',
+                  gap: 1.4,
+                  borderRadius: 2,
+                  backgroundColor: 'rgba(144, 202, 249, 0.08)',
+                  border: '1px solid rgba(144, 202, 249, 0.14)',
                 }}
               >
-                <CircularProgress size={18} />
-                <Typography variant="body2">Loading topics...</Typography>
+                <CircularProgress size={26} thickness={4.5} />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                    Loading topics...
+                  </Typography>
+                </Box>
               </Box>
             )}
             {showNavigationError && (
@@ -306,15 +315,27 @@ const Navbar = () => {
         </Box>
       </Drawer>
 
-      <Dialog open={adminOpen} onClose={() => setAdminOpen(false)} fullWidth maxWidth="lg">
-        <DialogContent sx={{ p: 0, position: 'relative' }}>
+      <Dialog
+        open={adminOpen}
+        onClose={() => setAdminOpen(false)}
+        fullWidth
+        maxWidth="lg"
+        fullScreen={isMobile}
+        PaperProps={{
+          sx: {
+            m: { xs: 0, sm: 2 },
+            maxHeight: { xs: '100%', sm: 'calc(100% - 64px)' },
+          },
+        }}
+      >
+        <DialogContent sx={{ p: 0, position: 'relative', overflowX: 'hidden' }}>
           <IconButton
             aria-label="close admin modal"
             onClick={() => setAdminOpen(false)}
             sx={{
               position: 'absolute',
-              top: 12,
-              right: 12,
+              top: { xs: 8, sm: 12 },
+              right: { xs: 8, sm: 12 },
               zIndex: 1,
               color: 'text.secondary',
               backgroundColor: 'background.paper',

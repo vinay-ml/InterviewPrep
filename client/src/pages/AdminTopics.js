@@ -65,7 +65,9 @@ const getAccessCodePrefix = () => {
 };
 
 const getLanguageBadgeColor = (lang) => {
-  const formatted = String(lang || '').toLowerCase().trim();
+  const formatted = String(lang || '')
+    .toLowerCase()
+    .trim();
   switch (formatted) {
     case 'javascript':
     case 'js':
@@ -128,8 +130,7 @@ const AdminTopics = () => {
   const [updateNavigationTopic, { isLoading: updatingTopic }] = useUpdateNavigationTopicMutation();
   const [deleteNavigationSection, { isLoading: deletingSection }] =
     useDeleteNavigationSectionMutation();
-  const [deleteNavigationTopic, { isLoading: deletingTopic }] =
-    useDeleteNavigationTopicMutation();
+  const [deleteNavigationTopic, { isLoading: deletingTopic }] = useDeleteNavigationTopicMutation();
 
   // Auto-select first section when loaded
   useEffect(() => {
@@ -273,15 +274,23 @@ const AdminTopics = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, md: 4 } }}>
+    <Box
+      sx={{
+        maxWidth: 1200,
+        mx: 'auto',
+        p: { xs: 1.5, sm: 2.5, md: 4 },
+        pt: { xs: 6, md: 4 },
+      }}
+    >
       {/* Header Panel */}
-      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <AdminPanelSettingsIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+      <Box sx={{ mb: { xs: 2, md: 4 }, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <AdminPanelSettingsIcon sx={{ fontSize: { xs: 30, md: 40 }, color: 'primary.main' }} />
         <Box>
           <Typography
-            variant="h4"
+            variant="h5"
             sx={{
               fontWeight: 800,
+              fontSize: { xs: '1.35rem', sm: '1.7rem', md: '2.125rem' },
               background: 'linear-gradient(90deg, #60a5fa, #a78bfa)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -295,12 +304,12 @@ const AdminTopics = () => {
         </Box>
       </Box>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={{ xs: 2, md: 4 }}>
         {/* Left Column: Live Navigation Hierarchy Tree */}
         <Grid item xs={12} md={7}>
           <Paper
             sx={{
-              p: 3,
+              p: { xs: 1.5, sm: 2, md: 3 },
               background: 'rgba(22, 27, 34, 0.4)',
               backdropFilter: 'blur(16px)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -313,7 +322,9 @@ const AdminTopics = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                mb: 3,
+                mb: { xs: 2, md: 3 },
+                gap: 1,
+                flexWrap: 'wrap',
               }}
             >
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -367,21 +378,21 @@ const AdminTopics = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        p: 2,
+                        p: { xs: 1.25, sm: 2 },
                         cursor: 'pointer',
                         userSelect: 'none',
                       }}
                       onClick={() => handleToggleSection(section._id)}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
                         {expandedSections[section._id] ? (
                           <ExpandLessIcon sx={{ color: 'text.secondary' }} />
                         ) : (
                           <ExpandMoreIcon sx={{ color: 'text.secondary' }} />
                         )}
                         <FolderIcon sx={{ color: '#fbbf24' }} />
-                        <Box>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 650 }}>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 650 }} noWrap>
                             {section.category}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
@@ -393,7 +404,13 @@ const AdminTopics = () => {
 
                       {/* Section Controls */}
                       <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.25,
+                          flexShrink: 0,
+                          ml: 1,
+                        }}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Tooltip title="Move Section Up">
@@ -433,8 +450,8 @@ const AdminTopics = () => {
                           variant={selectedSectionId === section._id ? 'contained' : 'outlined'}
                           onClick={() => setSelectedSectionId(section._id)}
                           sx={{
-                            ml: 1,
-                            px: 1.5,
+                            ml: { xs: 0.25, sm: 1 },
+                            px: { xs: 1, sm: 1.5 },
                             py: 0.5,
                             fontSize: '0.7rem',
                             borderRadius: 1.5,
@@ -467,7 +484,7 @@ const AdminTopics = () => {
                     <Collapse in={expandedSections[section._id]} timeout="auto">
                       <Box
                         sx={{
-                          p: 2,
+                          p: { xs: 1, sm: 2 },
                           bgcolor: 'rgba(0, 0, 0, 0.12)',
                           borderTop: '1px solid rgba(255, 255, 255, 0.04)',
                         }}
@@ -481,9 +498,11 @@ const AdminTopics = () => {
                                   key={topic._id}
                                   sx={{
                                     display: 'flex',
-                                    alignItems: 'center',
+                                    alignItems: { xs: 'flex-start', sm: 'center' },
                                     justifyContent: 'space-between',
-                                    p: 1.5,
+                                    flexDirection: { xs: 'column', sm: 'row' },
+                                    gap: { xs: 1, sm: 0 },
+                                    p: { xs: 1.2, sm: 1.5 },
                                     borderRadius: 1.5,
                                     border: '1px solid rgba(255, 255, 255, 0.03)',
                                     bgcolor: 'rgba(255, 255, 255, 0.01)',
@@ -498,8 +517,9 @@ const AdminTopics = () => {
                                     sx={{
                                       display: 'flex',
                                       alignItems: 'center',
-                                      gap: 1.5,
+                                      gap: 1,
                                       minWidth: 0,
+                                      width: '100%',
                                     }}
                                   >
                                     <Box
@@ -519,18 +539,29 @@ const AdminTopics = () => {
                                       sx={{ color: 'text.secondary', fontSize: 18, flexShrink: 0 }}
                                     />
                                     <Box sx={{ minWidth: 0 }}>
-                                      <Typography
-                                        variant="body2"
-                                        sx={{ fontWeight: 500 }}
-                                        noWrap
-                                      >
+                                      <Typography variant="body2" sx={{ fontWeight: 500 }} noWrap>
                                         {topic.label}
                                       </Typography>
-                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.2 }}>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: { xs: 'flex-start', sm: 'center' },
+                                          flexDirection: { xs: 'column', sm: 'row' },
+                                          gap: 1,
+                                          mt: 0.2,
+                                        }}
+                                      >
                                         <Typography
                                           variant="caption"
                                           color="text.secondary"
-                                          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                                          sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                            maxWidth: { xs: '100%', sm: 220 },
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                          }}
                                         >
                                           <LinkIcon sx={{ fontSize: 12 }} /> {topic.path}
                                         </Typography>
@@ -554,7 +585,14 @@ const AdminTopics = () => {
                                   </Box>
 
                                   {/* Topic Controls */}
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2 }}>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 0.2,
+                                      alignSelf: { xs: 'flex-end', sm: 'center' },
+                                    }}
+                                  >
                                     <Tooltip title="Move Topic Up">
                                       <span>
                                         <IconButton
@@ -579,7 +617,9 @@ const AdminTopics = () => {
                                           onClick={() =>
                                             handleMoveTopic(section._id, topic._id, tIdx, 'down')
                                           }
-                                          disabled={tIdx === section.topics.length - 1 || updatingTopic}
+                                          disabled={
+                                            tIdx === section.topics.length - 1 || updatingTopic
+                                          }
                                           sx={{
                                             color: 'rgba(255, 255, 255, 0.6)',
                                             '&:disabled': { color: 'rgba(255, 255, 255, 0.15)' },
@@ -600,7 +640,10 @@ const AdminTopics = () => {
                                           disabled={deletingTopic}
                                           sx={{
                                             color: 'rgba(239, 68, 68, 0.7)',
-                                            '&:hover': { color: '#ef4444', bgcolor: 'rgba(239, 68, 68, 0.1)' },
+                                            '&:hover': {
+                                              color: '#ef4444',
+                                              bgcolor: 'rgba(239, 68, 68, 0.1)',
+                                            },
                                           }}
                                         >
                                           <DeleteIcon fontSize="small" />
@@ -635,8 +678,8 @@ const AdminTopics = () => {
           {/* Create Section Form */}
           <Paper
             sx={{
-              p: 3,
-              mb: 4,
+              p: { xs: 1.5, sm: 2, md: 3 },
+              mb: { xs: 2, md: 4 },
               background: 'rgba(22, 27, 34, 0.4)',
               backdropFilter: 'blur(16px)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -644,10 +687,10 @@ const AdminTopics = () => {
               boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2.5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: { xs: 1.5, md: 2.5 } }}>
               Add New Section
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, md: 2 } }}>
               <TextField
                 label="Section Name"
                 value={sectionName}
@@ -672,8 +715,10 @@ const AdminTopics = () => {
                 variant="contained"
                 onClick={handleAddSection}
                 disabled={!sectionName.trim() || addingSection}
-                startIcon={addingSection ? <CircularProgress size={20} color="inherit" /> : <AddIcon />}
-                sx={{ py: 1, fontWeight: 600, mt: 0.5 }}
+                startIcon={
+                  addingSection ? <CircularProgress size={20} color="inherit" /> : <AddIcon />
+                }
+                sx={{ py: 1, fontWeight: 600, mt: 0.5, width: { xs: '100%', sm: 'auto' } }}
               >
                 Add Section
               </Button>
@@ -683,7 +728,7 @@ const AdminTopics = () => {
           {/* Create Topic Form */}
           <Paper
             sx={{
-              p: 3,
+              p: { xs: 1.5, sm: 2, md: 3 },
               background: 'rgba(22, 27, 34, 0.4)',
               backdropFilter: 'blur(16px)',
               border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -696,16 +741,22 @@ const AdminTopics = () => {
             </Typography>
 
             {selectedSection ? (
-              <Alert severity="info" sx={{ mb: 2.5, py: 0.25, '& .MuiAlert-message': { fontSize: '0.825rem' } }}>
+              <Alert
+                severity="info"
+                sx={{ mb: 2.5, py: 0.25, '& .MuiAlert-message': { fontSize: '0.825rem' } }}
+              >
                 Adding under <strong>{selectedSection.category}</strong>
               </Alert>
             ) : (
-              <Alert severity="warning" sx={{ mb: 2.5, py: 0.25, '& .MuiAlert-message': { fontSize: '0.825rem' } }}>
+              <Alert
+                severity="warning"
+                sx={{ mb: 2.5, py: 0.25, '& .MuiAlert-message': { fontSize: '0.825rem' } }}
+              >
                 Please select a section first
               </Alert>
             )}
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, md: 2 } }}>
               <FormControl fullWidth size="small">
                 <InputLabel id="target-section-label">Target Section</InputLabel>
                 <Select
@@ -726,7 +777,9 @@ const AdminTopics = () => {
               <TextField
                 label="Topic Label"
                 value={topicForm.label}
-                onChange={(event) => setTopicForm((prev) => ({ ...prev, label: event.target.value }))}
+                onChange={(event) =>
+                  setTopicForm((prev) => ({ ...prev, label: event.target.value }))
+                }
                 fullWidth
                 size="small"
                 placeholder="e.g. Load Balancers"
@@ -735,7 +788,9 @@ const AdminTopics = () => {
               <TextField
                 label="Path (optional)"
                 value={topicForm.path}
-                onChange={(event) => setTopicForm((prev) => ({ ...prev, path: event.target.value }))}
+                onChange={(event) =>
+                  setTopicForm((prev) => ({ ...prev, path: event.target.value }))
+                }
                 fullWidth
                 size="small"
                 placeholder="e.g. /load-balancers"
@@ -782,8 +837,10 @@ const AdminTopics = () => {
                 variant="contained"
                 onClick={handleAddTopic}
                 disabled={!selectedSectionId || !topicForm.label.trim() || addingTopic}
-                startIcon={addingTopic ? <CircularProgress size={20} color="inherit" /> : <AddIcon />}
-                sx={{ py: 1, fontWeight: 600, mt: 0.5 }}
+                startIcon={
+                  addingTopic ? <CircularProgress size={20} color="inherit" /> : <AddIcon />
+                }
+                sx={{ py: 1, fontWeight: 600, mt: 0.5, width: { xs: '100%', sm: 'auto' } }}
               >
                 Add Topic
               </Button>
@@ -792,8 +849,8 @@ const AdminTopics = () => {
         </Grid>
       </Grid>
 
-    {/* Delete Confirmation Dialog */}
-    <Dialog
+      {/* Delete Confirmation Dialog */}
+      <Dialog
         open={deleteConfirm.open}
         onClose={() => setDeleteConfirm((prev) => ({ ...prev, open: false }))}
         PaperProps={{
@@ -810,7 +867,8 @@ const AdminTopics = () => {
         <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>Confirm Deletion</DialogTitle>
         <DialogContent sx={{ pb: 2 }}>
           <DialogContentText sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.95rem' }}>
-            Are you sure you want to delete the {deleteConfirm.type} <strong>"{deleteConfirm.name}"</strong>? This action cannot be undone.
+            Are you sure you want to delete the {deleteConfirm.type}{' '}
+            <strong>"{deleteConfirm.name}"</strong>? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5, gap: 1.5 }}>
@@ -820,7 +878,10 @@ const AdminTopics = () => {
               color: 'rgba(255,255,255,0.7)',
               border: '1px solid rgba(255,255,255,0.15)',
               px: 2,
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.3)' },
+              '&:hover': {
+                bgcolor: 'rgba(255,255,255,0.05)',
+                borderColor: 'rgba(255,255,255,0.3)',
+              },
             }}
           >
             Cancel
