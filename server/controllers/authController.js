@@ -1,5 +1,5 @@
-const jwt = require("jsonwebtoken");
-const AccessCode = require("../models/AccessCode");
+const jwt = require('jsonwebtoken');
+const AccessCode = require('../models/AccessCode');
 
 // Update Access Codes at Application Startup
 exports.updateAccessCodes = async () => {
@@ -26,32 +26,23 @@ exports.updateAccessCodes = async () => {
 
     // Append today's date to the existing access codes
     const date = new Date();
-    const reversedDate = date
-      .getDate()
-      .toString()
-      .padStart(2, "0")
-      .split("")
-      .reverse()
-      .join("");
+    const reversedDate = date.getDate().toString().padStart(2, '0').split('').reverse().join('');
     const reversedMonth = (date.getMonth() + 1)
       .toString()
-      .padStart(2, "0")
-      .split("")
+      .padStart(2, '0')
+      .split('')
       .reverse()
-      .join("");
+      .join('');
 
     for (const code of codes) {
-      code.accessCode = `${code.accessCode.slice(
-        0,
-        2
-      )}${reversedDate}${reversedMonth}`;
+      code.accessCode = `${code.accessCode.slice(0, 2)}${reversedDate}${reversedMonth}`;
       code.lastUpdated = today;
       await code.save();
     }
 
     // console.log("Access codes updated successfully for today.");
   } catch (error) {
-    console.error("Error updating access codes:", error.message);
+    console.error('Error updating access codes:', error.message);
   }
 };
 
@@ -62,15 +53,13 @@ exports.login = async (req, res) => {
 
     // Validate input
     if (!accessCode || !username) {
-      return res
-        .status(400)
-        .json({ message: "Access code and username are required" });
+      return res.status(400).json({ message: 'Access code and username are required' });
     }
 
     // Check for valid access code
     const codeEntry = await AccessCode.findOne({ accessCode });
     if (!codeEntry) {
-      return res.status(401).json({ message: "Invalid access code" });
+      return res.status(401).json({ message: 'Invalid access code' });
     }
 
     // Check if username already exists
@@ -80,15 +69,15 @@ exports.login = async (req, res) => {
       await codeEntry.save();
     }
 
-    // Generate JWT Token (Expires in 15 days)
+    // Generate JWT Token (Expires in 30 days)
     const token = jwt.sign(
       { id: codeEntry._id, accessCode: codeEntry.accessCode, username },
       process.env.JWT_SECRET,
-      { expiresIn: "10d" }
+      { expiresIn: '30d' }
     );
 
-    res.status(200).json({ message: "Access granted", token, username });
+    res.status(200).json({ message: 'Access granted', token, username });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

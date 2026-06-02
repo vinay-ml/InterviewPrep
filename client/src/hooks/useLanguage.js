@@ -1,35 +1,31 @@
 import { useParams } from 'react-router-dom';
+import { useGetNavigationConfigQuery } from '../redux/api/navigationApi';
+
+const getTopicPath = (topic) => topic.path || `/${topic.label.trim().toLowerCase()}`;
+
+const getLanguageByCategory = (category, sections = []) => {
+  const normalizedCategory = category?.trim().toLowerCase();
+
+  const matchingTopic = sections
+    .flatMap((section) => section.topics || [])
+    .find((topic) => {
+      const normalizedPath = getTopicPath(topic)
+        .replace(/^\/+|\/+$/g, '')
+        .trim()
+        .toLowerCase();
+      const normalizedLabel = topic.label.trim().toLowerCase();
+
+      return normalizedPath === normalizedCategory || normalizedLabel === normalizedCategory;
+    });
+
+  return matchingTopic?.language || 'javascript';
+};
 
 const useLanguage = () => {
   const { category } = useParams();
+  const { data } = useGetNavigationConfigQuery();
 
-  const languageMapping = {
-    javascript: 'javascript',
-    python: 'python',
-    sql: 'sql',
-    reactjs: 'javascript',
-    nodejs: 'javascript',
-    html: 'html',
-    css: 'css',
-    powerbi: 'sql',
-    'genai with js': 'javascript',
-    'genai with py': 'python',
-    'MongoDB vs Sequelize': 'javascript',
-    rabbitMQ: 'javascript',
-    'Elastic || Open search': 'javascript',
-    Redis: 'javascript',
-    kafka: 'javascript',
-    'System design': 'javascript',
-    docker: 'javascript',
-    kubernetes: 'javascript',
-    jenkins: 'javascript',
-    'aws for hosting': 'javascript',
-    aws: 'javascript',
-    linux: 'javascript',
-    miscellaneous: 'javascript',
-  };
-
-  return languageMapping[category?.toLowerCase()] || 'javascript';
+  return getLanguageByCategory(category, data?.data || []);
 };
 
 export default useLanguage;

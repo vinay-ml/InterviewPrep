@@ -24,6 +24,42 @@ const interviewPrepGrammars = Object.fromEntries(
 export const lowlight = createLowlight(interviewPrepGrammars);
 lowlight.register('linux', bash);
 
+// Dynamically register unknown languages as dummy grammars to prevent Highlight.js / lowlight from crashing
+const ensureLanguageRegistered = (name) => {
+  if (!name) return;
+  try {
+    const registeredLangs = lowlight.listLanguages();
+    if (!registeredLangs.includes(name)) {
+      lowlight.register(name, () => ({}));
+    }
+  } catch (e) {
+    // Ignore any registration errors
+  }
+};
+
+const originalHighlight = lowlight.highlight;
+lowlight.highlight = function (name, value, options) {
+  ensureLanguageRegistered(name);
+  try {
+    return originalHighlight.call(this, name, value, options);
+  } catch (err) {
+    return {
+      type: 'root',
+      children: [{ type: 'text', value }],
+    };
+  }
+};
+
+const originalRegistered = lowlight.registered;
+lowlight.registered = function (name) {
+  ensureLanguageRegistered(name);
+  try {
+    return originalRegistered.call(this, name);
+  } catch (err) {
+    return true;
+  }
+};
+
 const LABELS = {
   linux: 'Linux',
   bash: 'Bash',

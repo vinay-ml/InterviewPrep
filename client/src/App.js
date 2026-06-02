@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import CategoryQuestions from './pages/CategoryQuestions';
 import HomePage from './pages/HomePage';
 import OnlineUsers from './pages/OnlineUsers';
+import AdminTopics from './pages/AdminTopics';
 import { jwtDecode } from 'jwt-decode';
 
 const AppRoutes = () => {
@@ -41,6 +42,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminTopics />
             </ProtectedRoute>
           }
         />

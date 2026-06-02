@@ -16,6 +16,9 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useGetNavigationConfigQuery } from '../redux/api/navigationApi';
+
+const getTopicPath = (topic) => topic.path || `/${topic.label.trim().toLowerCase()}`;
 
 const Navbar = () => {
   const location = useLocation();
@@ -24,6 +27,14 @@ const Navbar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
+  const {
+    data: navigationConfig,
+    error: navigationError,
+    isLoading: navigationLoading,
+    isFetching: navigationFetching,
+  } = useGetNavigationConfigQuery();
+  const navSections = navigationConfig?.data || [];
+  const hasNavSections = navSections.length > 0;
 
   useEffect(() => {
     if (!isMobile) {
@@ -37,67 +48,6 @@ const Navbar = () => {
     }
     setDrawerOpen(open);
   };
-
-  const navSections = [
-    {
-      category: 'Frontend',
-      links: [
-        { text: 'JavaScript', to: '/javascript' },
-        { text: 'ReactJS', to: '/reactjs' },
-        { text: 'HTML', to: '/html' },
-        { text: 'CSS', to: '/css' },
-      ],
-    },
-    {
-      category: 'Backend',
-      links: [
-        { text: 'NodeJS', to: '/nodejs' },
-        { text: 'Python', to: '/python' },
-        { text: 'System design', to: '/system design' },
-      ],
-    },
-    {
-      category: 'Data & Storage',
-      links: [
-        { text: 'SQL', to: '/sql' },
-        { text: 'MongoDB vs Sequelize', to: '/MongoDB_Sequelize' },
-        { text: 'Elastic || Open search', to: '/Elastic||Open search' },
-        { text: 'Redis ', to: '/redis ' },
-      ],
-    },
-    {
-      category: 'Event Messaging',
-      links: [
-        { text: 'RabbitMQ ', to: '/rabbitMQ ' },
-        { text: 'Kafka ', to: '/kafka ' },
-      ],
-    },
-    {
-      category: 'GenAI & Applied AI',
-      links: [
-        { text: 'GenAI with PY', to: '/GenAI with PY' },
-        { text: 'GenAI with JS', to: '/GenAI with JS' },
-      ],
-    },
-    {
-      category: 'DevOps',
-      links: [
-        { text: 'Linux', to: '/linux' },
-        { text: 'Docker', to: '/docker' },
-        { text: 'Kubernetes', to: '/kubernetes' },
-        { text: 'Jenkins', to: '/jenkins' },
-        { text: 'AWS', to: '/aws' },
-      ],
-    },
-    {
-      category: 'Data Analytics',
-      links: [{ text: 'PowerBI', to: '/powerbi' }],
-    },
-    {
-      category: 'More',
-      links: [{ text: 'Miscellaneous', to: '/miscellaneous' }],
-    },
-  ];
 
   // Path and current section extraction
   const pathName = location.pathname;
@@ -200,70 +150,90 @@ const Navbar = () => {
           </Typography>
           <Divider />
           <List sx={{ py: 1, px: 1 }}>
-            {navSections.map((section, sectionIndex) => (
-              <Box key={section.category}>
-                <Box
-                  sx={{
-                    px: 1.2,
-                    py: 1.1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Typography
-                    variant="subtitle2"
+            {(navigationLoading || navigationFetching) && (
+              <Typography variant="body2" color="text.secondary" sx={{ px: 1.4, py: 1 }}>
+                Loading topics...
+              </Typography>
+            )}
+            {navigationError && (
+              <Typography variant="body2" color="error" sx={{ px: 1.4, py: 1 }}>
+                Unable to load topics. Please try again later.
+              </Typography>
+            )}
+            {!navigationLoading && !navigationFetching && !navigationError && !hasNavSections && (
+              <Typography variant="body2" color="text.secondary" sx={{ px: 1.4, py: 1 }}>
+                No topics configured yet.
+              </Typography>
+            )}
+            {hasNavSections &&
+              navSections.map((section, sectionIndex) => (
+                <Box key={section.category}>
+                  <Box
                     sx={{
-                      px: 1.4,
-                      py: 0.45,
-                      borderRadius: '999px',
-                      backgroundColor: 'rgba(34, 197, 94, 0.16)',
-                      color: '#86efac',
-                      fontWeight: 700,
-                      letterSpacing: '0.03em',
-                      fontSize: '0.78rem',
-                      textAlign: 'center',
+                      px: 1.2,
+                      py: 1.1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
-                    {section.category}
-                  </Typography>
-                </Box>
-                {section.links.map((link) => (
-                  <ListItem key={link.text} disablePadding>
-                    <ListItemButton
-                      component="a"
-                      href={link.to}
-                      onClick={handleNavLinkClick(link.to)}
+                    <Typography
+                      variant="subtitle2"
                       sx={{
-                        py: 0.75,
                         px: 1.4,
-                        borderRadius: '10px',
-                        mb: 0.35,
-                        transition: 'all 0.18s ease',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                          transform: 'translateX(-2px)',
-                        },
-                        '&.active': {
-                          backgroundColor: 'rgba(125, 211, 252, 0.16)',
-                        },
+                        py: 0.45,
+                        borderRadius: '999px',
+                        backgroundColor: 'rgba(34, 197, 94, 0.16)',
+                        color: '#86efac',
+                        fontWeight: 700,
+                        letterSpacing: '0.03em',
+                        fontSize: '0.78rem',
+                        textAlign: 'center',
                       }}
                     >
-                      <ListItemText primary={link.text} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-                {sectionIndex !== navSections.length - 1 && (
-                  <Divider
-                    sx={{
-                      mt: 1,
-                      mb: 0.7,
-                      borderColor: 'rgba(34, 197, 94, 0.35)',
-                    }}
-                  />
-                )}
-              </Box>
-            ))}
+                      {section.category}
+                    </Typography>
+                  </Box>
+                  {section.topics.map((topic) => {
+                    const path = getTopicPath(topic);
+
+                    return (
+                      <ListItem key={`${section.category}-${topic.label}`} disablePadding>
+                        <ListItemButton
+                          component="a"
+                          href={path}
+                          onClick={handleNavLinkClick(path)}
+                          sx={{
+                            py: 0.75,
+                            px: 1.4,
+                            borderRadius: '10px',
+                            mb: 0.35,
+                            transition: 'all 0.18s ease',
+                            '&:hover': {
+                              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                              transform: 'translateX(-2px)',
+                            },
+                            '&.active': {
+                              backgroundColor: 'rgba(125, 211, 252, 0.16)',
+                            },
+                          }}
+                        >
+                          <ListItemText primary={topic.label} />
+                        </ListItemButton>
+                      </ListItem>
+                    );
+                  })}
+                  {sectionIndex !== navSections.length - 1 && (
+                    <Divider
+                      sx={{
+                        mt: 1,
+                        mb: 0.7,
+                        borderColor: 'rgba(34, 197, 94, 0.35)',
+                      }}
+                    />
+                  )}
+                </Box>
+              ))}
           </List>
         </Box>
       </Drawer>
