@@ -16,6 +16,7 @@ import {
   Paper,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { toast } from 'react-toastify';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { jwtDecode } from 'jwt-decode';
@@ -30,6 +31,17 @@ import {
   visibleTextFromAnswerHtml,
 } from '../utils/richText';
 import RichAnswerHtml from './RichAnswerHtml';
+import { getRequestErrorMessage, readStoredJwt, useOnline } from '../utils/offline';
+
+const readAccessCodePrefix = () => {
+  try {
+    const jwt = readStoredJwt();
+    if (!jwt) return '';
+    return jwtDecode(jwt)?.accessCode?.slice(0, 2) || '';
+  } catch (error) {
+    return '';
+  }
+};
 
 const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) => {
   const [deletingQuestion, setDeletingQuestion] = useState(false);
@@ -41,33 +53,37 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
   const [showCode, setShowCode] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showImage, setShowImage] = useState({});
-
-  const token = localStorage.getItem('token');
-  const decoded = jwtDecode(token);
-  const accessCode = decoded?.accessCode || '';
-  const accessCodePrefix = accessCode.slice(0, 2);
-  const disableManageActions = accessCodePrefix === 'CN' || accessCodePrefix === 'MB';
-
+  const [imageErrors, setImageErrors] = useState({});
+  const online = useOnline();
   const location = useLocation();
   const language = useLanguage();
+  const accessCodePrefix = readAccessCodePrefix();
+  const disableManageActions = !online || accessCodePrefix === 'CN' || accessCodePrefix === 'MB';
 
   const handleConfirmDelete = async () => {
     setConfirmingDelete(true);
-    if (deleteTarget === 'question') {
-      setDeletingQuestion(true);
-      await onDelete(question._id);
+    try {
+      if (deleteTarget === 'question') {
+        setDeletingQuestion(true);
+        await onDelete(question._id);
+        toast.success('Question deleted');
+      } else if (deleteTarget) {
+        setDeletingImageId(deleteTarget);
+        await onDeleteImage({
+          id: question._id,
+          imageUrl: deleteTarget,
+        });
+        toast.success('Image deleted');
+      }
+      setOpenDialog(false);
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(getRequestErrorMessage(error, 'Unable to delete. Please try again.'));
+    } finally {
+      setConfirmingDelete(false);
       setDeletingQuestion(false);
-    } else if (deleteTarget) {
-      setDeletingImageId(deleteTarget);
-      await onDeleteImage({
-        id: question._id,
-        imageUrl: deleteTarget,
-      });
       setDeletingImageId('');
     }
-    setConfirmingDelete(false);
-    setOpenDialog(false);
-    setDeleteTarget(null);
   };
 
   const handleOpenDialog = (target) => {
@@ -103,24 +119,47 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
   return (
     <Paper
       elevation={24}
-      sx={{ borderRadius: '10px', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' }}
+      sx={{
+        borderRadius: '12px',
+        maxWidth: '100%',
+        minWidth: 0,
+        boxSizing: 'border-box',
+        backgroundColor: 'transparent',
+        backgroundImage: 'none',
+        boxShadow: 'none',
+        border: 'none',
+        backdropFilter: 'none',
+        transition: 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease',
+        '&:hover': {
+          transform: 'translateY(-6px) translateZ(0) scale(1.008)',
+          '& .main-question-card': {
+            borderColor: 'rgba(59, 130, 246, 0.35)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.55), 0 0 25px rgba(59, 130, 246, 0.15)',
+          },
+        },
+      }}
     >
       <Card
+        className="main-question-card"
         elevation={8}
         sx={{
-          borderRadius: '10px',
+          borderRadius: '12px',
           overflow: 'hidden',
-          backgroundColor: 'background.paper',
+          backgroundColor: 'rgba(22, 27, 34, 0.65)',
           maxWidth: '100%',
           minWidth: 0,
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          transition: 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
         }}
       >
         <CardContent>
           <Typography
             sx={{
-              opacity: '90%',
-              fontSize: { xs: '1rem', sm: '1.1rem', md: '1.3rem' },
-              fontWeight: 500,
+              color: '#ffffff',
+              fontSize: { xs: '1.05rem', sm: '1.15rem', md: '1.35rem' },
+              fontWeight: 700,
+              letterSpacing: '-0.015em',
+              lineHeight: 1.4,
             }}
           >
             Q{index + 1}: {question.title}
@@ -223,35 +262,51 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
           )}
 
           {question.referenceURLs && question.referenceURLs.some((url) => url.trim() !== '') && (
-            <>
-              <Typography variant="body2" sx={{ fontWeight: 'bold', marginTop: '10px' }}>
+            <Box sx={{ mt: 2 }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 700, color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}
+              >
                 Reference Links:
               </Typography>
-              {question.referenceURLs.map(
-                (url, i) =>
-                  url.trim() && (
-                    <Typography
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {question.referenceURLs.map((url, i) => {
+                  if (!url.trim()) return null;
+                  let hostname = url;
+                  try {
+                    hostname = new URL(url).hostname.replace('www.', '');
+                  } catch (e) {}
+                  return (
+                    <Button
                       key={i}
-                      variant="body1"
-                      gutterBottom
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      variant="outlined"
+                      size="small"
                       sx={{
-                        marginTop: '5px',
-                        overflowWrap: 'anywhere',
-                        wordBreak: 'break-word',
-                        '& a': {
-                          color: '#58a6ff',
-                          textDecoration: 'underline',
-                          '&:hover': { color: '#79b8ff' },
+                        borderRadius: '20px',
+                        textTransform: 'none',
+                        fontSize: '0.78rem',
+                        py: 0.4,
+                        px: 1.5,
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                        color: '#93c5fd',
+                        backdropFilter: 'blur(4px)',
+                        '&:hover': {
+                          borderColor: '#3b82f6',
+                          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                          transform: 'translateY(-1px)',
                         },
                       }}
                     >
-                      <a href={url} target="_blank" rel="noopener noreferrer">
-                        {url}
-                      </a>
-                    </Typography>
-                  )
-              )}
-            </>
+                      🔗 {hostname}
+                    </Button>
+                  );
+                })}
+              </Box>
+            </Box>
           )}
 
           {question.images &&
@@ -273,7 +328,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                 >
                   {showImage[image] ? 'Hide Image' : 'Show Me Image'}
                 </Button>
-                {showImage[image] && (
+                {showImage[image] && !imageErrors[image] && (
                   <img
                     src={image}
                     alt={`Visual representation for question ${index + 1}`}
@@ -282,7 +337,15 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                       borderRadius: '5px',
                       objectFit: 'cover',
                     }}
+                    onError={() => setImageErrors((prev) => ({ ...prev, [image]: true }))}
                   />
+                )}
+                {showImage[image] && imageErrors[image] && (
+                  <Typography variant="body2" color="error">
+                    {online
+                      ? 'This image could not be loaded.'
+                      : 'This image is not saved on this device. Show it once while you are online.'}
+                  </Typography>
                 )}
                 <IconButton
                   sx={{ position: 'absolute', top: 5, right: 5 }}

@@ -12,6 +12,7 @@ import {
   ListItemText,
   Divider,
   CircularProgress,
+  Button,
   Dialog,
   DialogContent,
   Tooltip,
@@ -25,6 +26,7 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useGetNavigationConfigQuery } from '../redux/api/navigationApi';
 import AdminTopics from '../pages/AdminTopics';
+import { getRequestErrorMessage } from '../utils/offline';
 
 const getTopicPath = (topic) => topic.path || `/${topic.label.trim().toLowerCase()}`;
 
@@ -62,6 +64,7 @@ const Navbar = () => {
     error: navigationError,
     isLoading: navigationLoading,
     isFetching: navigationFetching,
+    refetch: refetchNavigation,
   } = useGetNavigationConfigQuery();
   const navSections = navigationConfig?.data || [];
   const hasNavSections = navSections.length > 0;
@@ -125,8 +128,13 @@ const Navbar = () => {
             <NavLink
               to="/"
               style={{
-                color: 'inherit',
+                color: '#ffffff',
                 textDecoration: 'none',
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                background: 'linear-gradient(135deg, #ffffff 0%, #a5f3fc 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
               }}
               onClick={handleNavLinkClick('/')}
             >
@@ -200,8 +208,11 @@ const Navbar = () => {
             sx={{
               padding: '16px',
               textAlign: 'center',
-              bgcolor: 'primary.main',
-              color: 'primary.contrastText',
+              background:
+                'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)',
+              color: '#ffffff',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              fontWeight: 700,
             }}
           >
             Navigation
@@ -233,9 +244,25 @@ const Navbar = () => {
               </Box>
             )}
             {showNavigationError && (
-              <Typography variant="body2" color="error" sx={{ px: 1.4, py: 1 }}>
-                Unable to load topics. Please try again later.
-              </Typography>
+              <Box sx={{ px: 1.4, py: 1 }} onClick={(event) => event.stopPropagation()}>
+                <Typography variant="body2" color="error">
+                  {getRequestErrorMessage(
+                    navigationError,
+                    'Unable to load topics. Please try again later.'
+                  )}
+                </Typography>
+                <Button
+                  size="small"
+                  variant="text"
+                  sx={{ mt: 0.5, px: 0 }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    refetchNavigation();
+                  }}
+                >
+                  Try again
+                </Button>
+              </Box>
             )}
             {!showNavigationLoading && !showNavigationError && !hasNavSections && (
               <Typography variant="body2" color="text.secondary" sx={{ px: 1.4, py: 1 }}>

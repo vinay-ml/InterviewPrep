@@ -1,26 +1,38 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { createOfflineAwareBaseQuery } from '../../utils/offline';
+
+const readStoredSession = () => {
+  const storedToken = localStorage.getItem('token');
+  if (!storedToken) return null;
+
+  try {
+    const parsed = JSON.parse(storedToken);
+    if (parsed && typeof parsed === 'object' && parsed.token) return parsed;
+  } catch (error) {
+    return { token: storedToken };
+  }
+
+  return { token: storedToken };
+};
 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({
-    // baseUrl: "https://inter-view-prep.onrender.com/api/auth",
+  baseQuery: createOfflineAwareBaseQuery({
     baseUrl:
       window.location.hostname === 'job-interview-prep.vercel.app'
         ? 'https://job-interview-prep.vercel.app/api/auth'
         : `http://${window.location.hostname}:4000/api/auth`,
     prepareHeaders: (headers) => {
-      const storedToken = localStorage.getItem('token');
-      if (storedToken) {
-        const { token, expiry } = JSON.parse(storedToken);
-        const isExpired = new Date().getTime() > expiry;
+      const session = readStoredSession();
+      if (!session?.token) return headers;
 
-        if (isExpired) {
-          console.warn('Token expired');
-          localStorage.removeItem('token');
-        } else {
-          headers.set('Authorization', `Bearer ${token}`);
-        }
+      if (session.expiry && new Date().getTime() > session.expiry) {
+        console.warn('Token expired');
+        localStorage.removeItem('token');
+        return headers;
       }
+
+      headers.set('Authorization', `Bearer ${session.token}`);
       return headers;
     },
   }),

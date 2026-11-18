@@ -15,7 +15,7 @@
 
 html {
   min-height: 100%;
-  background-color: #0d1117;
+  background-color: transparent;
 }
 
 body {
@@ -27,9 +27,28 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0d1117;
+  background-color: transparent;
   color: rgba(255, 255, 255, 0.9);
   text-rendering: optimizeLegibility;
+}
+
+/* Custom premium scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 button,

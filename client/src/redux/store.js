@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import { authApi } from './api/authApi';
 import { questionsApi } from './api/QuestionsApi';
 import { navigationApi } from './api/navigationApi';
@@ -18,3 +19,5 @@ export const store = configureStore({
       navigationApi.middleware,
     ]),
 });
+
+setupListeners(store.dispatch);

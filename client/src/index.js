@@ -10,6 +10,9 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'highlight.js/styles/atom-one-dark.min.css';
 import './index.css';
+import { registerServiceWorker } from './serviceWorkerRegistration';
+
+registerServiceWorker();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

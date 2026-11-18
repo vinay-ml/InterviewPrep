@@ -1,11 +1,15 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { createOfflineAwareBaseQuery } from '../../utils/offline';
 
 export const questionsApi = createApi({
   reducerPath: 'questionsApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: window.location.hostname === 'job-interview-prep.vercel.app'
-      ? 'https://job-interview-prep.vercel.app/api/questions'
-      : `http://${window.location.hostname}:4000/api/questions`,
+  refetchOnReconnect: true,
+  baseQuery: createOfflineAwareBaseQuery({
+    cacheGet: true,
+    baseUrl:
+      window.location.hostname === 'job-interview-prep.vercel.app'
+        ? 'https://job-interview-prep.vercel.app/api/questions'
+        : `http://${window.location.hostname}:4000/api/questions`,
   }),
   tagTypes: ['Questions'],
   endpoints: (builder) => ({

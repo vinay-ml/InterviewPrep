@@ -3,12 +3,23 @@ import { Avatar, Tooltip, Box, Badge, Paper, useTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import io from 'socket.io-client';
 
-// ✅ Connect to backend socket server
-const socket = io(
+const socketUrl =
   window.location.hostname === 'job-interview-prep.vercel.app'
     ? 'https://job-interview-prep.vercel.app'
-    : `http://${window.location.hostname}:4000`
-);
+    : `http://${window.location.hostname}:4000`;
+
+let socket = null;
+try {
+  socket = io(socketUrl, {
+    autoConnect: typeof navigator === 'undefined' ? true : navigator.onLine,
+    reconnection: true,
+    reconnectionAttempts: 3,
+    timeout: 8000,
+  });
+  socket.on('connect_error', () => {});
+} catch (error) {
+  console.error('Live presence is unavailable', error);
+}
 
 // ✅ Styled green dot badge
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -29,21 +40,42 @@ const OnlineUsers = ({ username }) => {
   const theme = useTheme();
 
   useEffect(() => {
-    if (!username) return;
+    if (!socket || !username) return undefined;
 
-    socket.on('connect', () => {
+    const announce = () => {
       socket.emit('user-online', { username });
-    });
+    };
 
+    if (socket.connected) announce();
+    socket.on('connect', announce);
     socket.on('online-users', (users) => {
-      setOnlineUsers(users);
+      if (Array.isArray(users)) setOnlineUsers(users);
     });
 
     return () => {
-      socket.off('connect');
+      socket.off('connect', announce);
       socket.off('online-users');
     };
   }, [username]);
+
+  useEffect(() => {
+    if (!socket) return undefined;
+
+    const connect = () => {
+      if (!socket.connected) socket.connect();
+    };
+    const disconnect = () => {
+      socket.disconnect();
+      setOnlineUsers([]);
+    };
+
+    window.addEventListener('online', connect);
+    window.addEventListener('offline', disconnect);
+    return () => {
+      window.removeEventListener('online', connect);
+      window.removeEventListener('offline', disconnect);
+    };
+  }, []);
 
   return (
     <Box

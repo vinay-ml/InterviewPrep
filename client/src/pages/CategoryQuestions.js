@@ -19,33 +19,35 @@ import { jwtDecode } from 'jwt-decode';
 import { useTheme } from '@mui/material/styles';
 import QuestionCard from '../components/QuestionCard';
 import AddQuestionModal from '../components/AddQuestionModal';
-import OnlineUsers from './OnlineUsers';
+import {
+  getRequestErrorMessage,
+  OFFLINE_WRITE_MESSAGE,
+  readStoredJwt,
+  useOnline,
+} from '../utils/offline';
 
 const CategoryQuestions = () => {
   const { category } = useParams();
   const navigate = useNavigate();
 
-  const { data, isLoading, error, isFetching } = useGetAllQuestionsQuery(category);
+  const { currentData, isLoading, error, isFetching, refetch } = useGetAllQuestionsQuery(category);
+  const online = useOnline();
   const [deleteQuestion] = useDeleteQuestionMutation();
   const [deleteImage] = useDeleteImageMutation();
   const [addQuestion] = useAddQuestionMutation();
   const [openModal, setOpenModal] = useState(false);
 
-  const token = localStorage.getItem('token');
-  let decoded = {};
+  const token = readStoredJwt();
   let accessCodePrefix = '';
 
   if (token) {
     try {
-      decoded = jwtDecode(token);
-      const accessCode = decoded?.accessCode || '';
-      accessCodePrefix = accessCode.slice(0, 2);
+      accessCodePrefix = jwtDecode(token)?.accessCode?.slice(0, 2) || '';
     } catch (err) {
       console.error('Invalid token:', err);
     }
   }
 
-  const username = decoded?.username || 'Guest';
   const disableAddAction = accessCodePrefix === 'CN';
 
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState({
@@ -71,11 +73,11 @@ const CategoryQuestions = () => {
   };
 
   const handleDeleteQuestion = async (id) => {
-    await deleteQuestion(id);
+    await deleteQuestion(id).unwrap();
   };
 
   const handleDeleteImage = async ({ id, imageUrl }) => {
-    await deleteImage({ id, imageUrl });
+    await deleteImage({ id, imageUrl }).unwrap();
   };
 
   const handleCheckboxChange = (type) => {
@@ -85,19 +87,21 @@ const CategoryQuestions = () => {
     }));
   };
 
-  const filteredQuestions = data?.data.filter(
+  const questions = Array.isArray(currentData?.data) ? currentData.data : [];
+  const filteredQuestions = questions.filter(
     (question) => selectedQuestionTypes[question.questionType]
   );
+  const hasQuestions = Array.isArray(currentData?.data);
 
   // --- URL update with filteredQuestions length ---
   useEffect(() => {
-    if (category && filteredQuestions) {
+    if (category && hasQuestions) {
       navigate(`/${category}?${filteredQuestions.length}`, { replace: true });
     }
-  }, [category, filteredQuestions?.length, navigate]);
+  }, [category, filteredQuestions.length, hasQuestions, navigate]);
   // ------------------------------------------------
 
-  if (isFetching || isLoading) {
+  if ((isLoading || isFetching) && !hasQuestions) {
     return (
       <Box
         sx={{
@@ -113,11 +117,16 @@ const CategoryQuestions = () => {
     );
   }
 
-  if (error) {
+  if (!hasQuestions) {
     return (
-      <Typography variant="h6" color="error" align="center" sx={{ mt: 4 }}>
-        Error: {error.message}
-      </Typography>
+      <Box sx={{ maxWidth: 560, mx: 'auto', mt: 8, px: 3, textAlign: 'center' }}>
+        <Typography variant="h6" sx={{ mb: 1.5 }}>
+          {getRequestErrorMessage(error, 'Unable to load questions.')}
+        </Typography>
+        <Button variant="outlined" onClick={() => refetch()}>
+          Try again
+        </Button>
+      </Box>
     );
   }
 
@@ -160,7 +169,8 @@ const CategoryQuestions = () => {
               variant="contained"
               color="primary"
               onClick={() => setOpenModal(true)}
-              disabled={disableAddAction}
+              disabled={disableAddAction || !online}
+              title={online ? undefined : OFFLINE_WRITE_MESSAGE}
             >
               {isMobile ? '+ Add' : `+ Add ${category} interview question`}
             </Button>

@@ -5,8 +5,10 @@ import learning_man from './learning_man.png';
 const HomePage = () => {
   return (
     <div className="home-page-wrapper">
-      <div className="hero-text-section">
-        <img src={learning_man} alt="Interview Preparation" className="hero-image" />
+      <div className="home-glass-card">
+        <div className="hero-image-wrapper">
+          <img src={learning_man} alt="Interview Preparation" className="hero-image" />
+        </div>
         <div className="hero-cta-wrapper">
           <button
             className="cta-button"

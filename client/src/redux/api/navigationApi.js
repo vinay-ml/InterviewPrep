@@ -1,4 +1,5 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { createOfflineAwareBaseQuery } from '../../utils/offline';
 
 const getStoredToken = () => {
   const tokenData = localStorage.getItem('token');
@@ -22,7 +23,9 @@ const getStoredToken = () => {
 
 export const navigationApi = createApi({
   reducerPath: 'navigationApi',
-  baseQuery: fetchBaseQuery({
+  refetchOnReconnect: true,
+  baseQuery: createOfflineAwareBaseQuery({
+    cacheGet: true,
     baseUrl:
       window.location.hostname === 'job-interview-prep.vercel.app'
         ? 'https://job-interview-prep.vercel.app/api/navigation'

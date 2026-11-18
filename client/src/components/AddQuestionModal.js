@@ -25,6 +25,7 @@ import { toast } from 'react-toastify';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useAddQuestionMutation, useUpdateQuestionMutation } from '../redux/api/QuestionsApi';
+import { getRequestErrorMessage } from '../utils/offline';
 import useLanguage from '../hooks/useLanguage';
 import RichTextEditor from './RichTextEditor';
 import {
@@ -150,7 +151,9 @@ const ImagePreviewCard = ({ src, onRemove }) => {
 };
 
 const getFileExtension = (tech) => {
-  const t = String(tech || '').toLowerCase().trim();
+  const t = String(tech || '')
+    .toLowerCase()
+    .trim();
   if (t.includes('javascript') || t === 'js' || t.includes('react')) return 'js';
   if (t.includes('typescript') || t === 'ts') return 'ts';
   if (t.includes('python') || t === 'py') return 'py';
@@ -309,17 +312,19 @@ const AddQuestionModal = ({
 
     try {
       if (mode === 'add') {
-        await addQuestion(formattedData);
+        await addQuestion(formattedData).unwrap();
         toast.success('Question added successfully!');
       } else if (mode === 'update' && questionId) {
-        await updateQuestion({ id: questionId, formData: formattedData });
+        await updateQuestion({ id: questionId, formData: formattedData }).unwrap();
         toast.success('Question updated successfully!');
+      } else {
+        throw new Error('This question could not be saved.');
       }
       setFormData(EMPTY_FORM);
       setImagePreviews([]);
       onClose(); // Close modal after success
     } catch (error) {
-      toast.error('Operation failed. Please try again.');
+      toast.error(getRequestErrorMessage(error, 'Unable to save this question. Please try again.'));
     } finally {
       setLoading(false); // Stop loader
     }
@@ -335,7 +340,8 @@ const AddQuestionModal = ({
       PaperProps={{
         sx: {
           backgroundColor: '#090d16',
-          backgroundImage: 'radial-gradient(at 0% 0%, rgba(29, 78, 216, 0.12) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(124, 58, 237, 0.08) 0, transparent 50%)',
+          backgroundImage:
+            'radial-gradient(at 0% 0%, rgba(29, 78, 216, 0.12) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(124, 58, 237, 0.08) 0, transparent 50%)',
           display: 'flex',
           flexDirection: 'column',
           height: '100vh',
@@ -361,10 +367,7 @@ const AddQuestionModal = ({
           }}
         >
           <CircularProgress size={50} thickness={4} sx={{ color: '#3b82f6' }} />
-          <Typography
-            variant="h6"
-            sx={{ marginTop: '24px', color: '#f3f4f6', fontWeight: 600 }}
-          >
+          <Typography variant="h6" sx={{ marginTop: '24px', color: '#f3f4f6', fontWeight: 600 }}>
             {mode === 'add' ? 'Saving your question...' : 'Updating your question...'}
           </Typography>
           <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.5)', mt: 1 }}>
@@ -407,7 +410,8 @@ const AddQuestionModal = ({
               px: 1.5,
               py: 0.25,
               borderRadius: '20px',
-              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%)',
               border: '1px solid rgba(147, 51, 234, 0.3)',
               color: '#a78bfa',
               fontSize: '0.72rem',
@@ -437,7 +441,17 @@ const AddQuestionModal = ({
           {/* Section 1: Metadata Configuration (Full Width) */}
           <Grid item xs={12}>
             <GlassCard>
-              <Typography variant="subtitle2" sx={{ color: '#3b82f6', fontWeight: 700, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  color: '#3b82f6',
+                  fontWeight: 700,
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
                 <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#3b82f6' }} />
                 Metadata Configuration
               </Typography>
@@ -476,11 +490,24 @@ const AddQuestionModal = ({
           {/* Section 2: Rich Answers & Notes (Full Width) */}
           <Grid item xs={12}>
             <GlassCard>
-              <Typography variant="subtitle2" sx={{ color: '#10b981', fontWeight: 700, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  color: '#10b981',
+                  fontWeight: 700,
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
                 <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#10b981' }} />
                 Rich Answers & Notes Content
               </Typography>
-              <Typography variant="caption" sx={{ display: 'block', mb: 1.5, color: 'rgba(255, 255, 255, 0.4)' }}>
+              <Typography
+                variant="caption"
+                sx={{ display: 'block', mb: 1.5, color: 'rgba(255, 255, 255, 0.4)' }}
+              >
                 Compose structured descriptions, bullet points, headers, or formatted tables.
               </Typography>
               <Box
@@ -543,12 +570,18 @@ const AddQuestionModal = ({
                     }}
                   >
                     <CodeIcon sx={{ fontSize: 14, color: '#60a5fa' }} />
-                    <Typography variant="caption" sx={{ color: '#e5e7eb', fontFamily: 'monospace', fontWeight: 600 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: '#e5e7eb', fontFamily: 'monospace', fontWeight: 600 }}
+                    >
                       solution.{getFileExtension(technology)}
                     </Typography>
                   </Box>
                 </Box>
-                <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.3)', fontFamily: 'monospace' }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: 'rgba(255, 255, 255, 0.3)', fontFamily: 'monospace' }}
+                >
                   UTF-8
                 </Typography>
               </Box>
@@ -565,7 +598,8 @@ const AddQuestionModal = ({
                   style: {
                     background: '#0d1117',
                     color: '#c9d1d9',
-                    fontFamily: 'SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace',
+                    fontFamily:
+                      'SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace',
                     borderBottomLeftRadius: '12px',
                     borderBottomRightRadius: '12px',
                     padding: '16px',
@@ -599,7 +633,10 @@ const AddQuestionModal = ({
                       borderBottom: 'none',
                     }}
                   >
-                    <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', fontWeight: 600 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: 'rgba(255, 255, 255, 0.5)', fontWeight: 600 }}
+                    >
                       Code Syntax Preview
                     </Typography>
                   </Box>
@@ -628,7 +665,17 @@ const AddQuestionModal = ({
           {/* Section 4: External Assets & Reference Links (Full Width at the End) */}
           <Grid item xs={12}>
             <GlassCard>
-              <Typography variant="subtitle2" sx={{ color: '#fbbf24', fontWeight: 700, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  color: '#fbbf24',
+                  fontWeight: 700,
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
                 <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#fbbf24' }} />
                 External Assets & Reference Links
               </Typography>
@@ -642,15 +689,21 @@ const AddQuestionModal = ({
                 fullWidth
                 sx={inputFieldStyles}
                 InputProps={{
-                  startAdornment: (
-                    <LinkIcon sx={{ color: 'rgba(255, 255, 255, 0.3)', mr: 1 }} />
-                  ),
+                  startAdornment: <LinkIcon sx={{ color: 'rgba(255, 255, 255, 0.3)', mr: 1 }} />,
                 }}
               />
 
               {imagePreviews.length > 0 && (
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="caption" sx={{ display: 'block', mb: 1, color: 'rgba(255, 255, 255, 0.4)', fontWeight: 600 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: 'block',
+                      mb: 1,
+                      color: 'rgba(255, 255, 255, 0.4)',
+                      fontWeight: 600,
+                    }}
+                  >
                     Attached Reference Previews ({imagePreviews.length})
                   </Typography>
                   <Grid container spacing={2}>
