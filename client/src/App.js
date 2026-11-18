@@ -8,7 +8,6 @@ import OnlineUsers from './pages/OnlineUsers';
 import { jwtDecode } from 'jwt-decode';
 import { useGetNavigationConfigQuery } from './redux/api/navigationApi';
 import { readStoredJwt } from './utils/offline';
-import ThreeDBackground from './components/ThreeDBackground';
 import OfflineBanner from './components/OfflineBanner';
 import AppErrorBoundary from './components/AppErrorBoundary';
 
@@ -39,7 +38,6 @@ const AppRoutes = () => {
 
   return (
     <>
-      <ThreeDBackground />
       <Navbar />
       <OfflineBanner />
       <OnlineUsers username={username} />

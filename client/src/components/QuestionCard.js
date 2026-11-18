@@ -156,10 +156,11 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
           <Typography
             sx={{
               color: '#ffffff',
-              fontSize: { xs: '1.05rem', sm: '1.15rem', md: '1.35rem' },
-              fontWeight: 700,
-              letterSpacing: '-0.015em',
-              lineHeight: 1.4,
+              fontFamily: 'inherit',
+              fontSize: { xs: '1rem', sm: '1.125rem', lg: '1.25rem' },
+              fontWeight: 600,
+              letterSpacing: '0',
+              lineHeight: 1.45,
             }}
           >
             Q{index + 1}: {question.title}
@@ -197,7 +198,9 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                           sx={{
                             display: 'list-item',
                             paddingLeft: '0px',
-                            fontSize: { xs: '0.95rem', sm: '1rem', md: '1.2rem' },
+                            fontFamily: 'inherit',
+                            fontSize: { xs: '0.9375rem', sm: '1rem', lg: '1.0625rem' },
+                            lineHeight: 1.6,
                           }}
                         >
                           <Typography component="span" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -248,7 +251,7 @@ const QuestionCard = ({ question, onDelete, onDeleteImage, index, onUpdate }) =>
                       color: '#d4d4d4',
                       borderRadius: '5px',
                       padding: '20px',
-                      fontSize: '14px',
+                      fontSize: '0.875rem',
                       margin: 0,
                       overflowX: 'auto',
                       maxWidth: '100%',
