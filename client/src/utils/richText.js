@@ -263,7 +263,8 @@ export function answersToEditorHtml(answers) {
 
 /** Shared MUI `sx` for rendered answers + TipTap `.ProseMirror` (ChatGPT / Word paste). */
 export const richTextAnswerSx = {
-  fontSize: { xs: '0.95rem', sm: '1rem', md: '1.1rem' },
+  fontFamily: 'inherit',
+  fontSize: { xs: '0.9375rem', sm: '1rem', lg: '1.0625rem' },
   lineHeight: 1.65,
   minWidth: 0,
   maxWidth: '100%',

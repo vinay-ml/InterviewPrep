@@ -1,15 +1,15 @@
 import { createTheme } from '@mui/material/styles';
 
 const appFontFamily =
-  'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji"';
+  'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji"';
 const monoFontFamily =
-  '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, Monaco, "Courier New", monospace';
+  'ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Monaco, "Courier New", monospace';
 
 export const theme = createTheme({
   palette: {
     mode: 'dark',
     background: {
-      default: 'transparent',
+      default: '#0a0d14',
       paper: 'rgba(22, 27, 34, 0.65)',
     },
     primary: {
@@ -26,50 +26,66 @@ export const theme = createTheme({
     fontWeightMedium: 500,
     fontWeightBold: 700,
     h1: {
-      fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-      lineHeight: 1.08,
+      fontSize: '2rem',
+      lineHeight: 1.15,
       fontWeight: 700,
-      letterSpacing: '-0.04em',
+      letterSpacing: '-0.02em',
+      '@media (min-width:600px)': { fontSize: '2.25rem' },
+      '@media (min-width:1200px)': { fontSize: '2.5rem' },
     },
     h2: {
-      fontSize: 'clamp(1.75rem, 4vw, 2.75rem)',
-      lineHeight: 1.12,
+      fontSize: '1.75rem',
+      lineHeight: 1.2,
       fontWeight: 700,
-      letterSpacing: '-0.035em',
+      letterSpacing: '-0.02em',
+      '@media (min-width:600px)': { fontSize: '1.875rem' },
+      '@media (min-width:1200px)': { fontSize: '2.125rem' },
     },
     h3: {
-      fontSize: 'clamp(1.5rem, 3.2vw, 2.25rem)',
-      lineHeight: 1.18,
+      fontSize: '1.5rem',
+      lineHeight: 1.25,
       fontWeight: 700,
-      letterSpacing: '-0.03em',
+      letterSpacing: '-0.015em',
+      '@media (min-width:600px)': { fontSize: '1.625rem' },
+      '@media (min-width:1200px)': { fontSize: '1.75rem' },
     },
     h4: {
-      fontSize: 'clamp(1.25rem, 2.5vw, 1.875rem)',
-      lineHeight: 1.22,
+      fontSize: '1.25rem',
+      lineHeight: 1.3,
       fontWeight: 700,
-      letterSpacing: '-0.025em',
+      letterSpacing: '-0.01em',
+      '@media (min-width:600px)': { fontSize: '1.375rem' },
+      '@media (min-width:1200px)': { fontSize: '1.5rem' },
     },
     h5: {
-      fontSize: 'clamp(1.125rem, 2vw, 1.5rem)',
-      lineHeight: 1.28,
-      fontWeight: 600,
-      letterSpacing: '-0.02em',
-    },
-    h6: {
-      fontSize: 'clamp(1rem, 1.5vw, 1.25rem)',
+      fontSize: '1.125rem',
       lineHeight: 1.35,
       fontWeight: 600,
-      letterSpacing: '-0.015em',
+      letterSpacing: '-0.01em',
+      '@media (min-width:600px)': { fontSize: '1.25rem' },
+      '@media (min-width:1200px)': { fontSize: '1.375rem' },
+    },
+    h6: {
+      fontSize: '1rem',
+      lineHeight: 1.4,
+      fontWeight: 600,
+      letterSpacing: '0',
+      '@media (min-width:600px)': { fontSize: '1.0625rem' },
+      '@media (min-width:1200px)': { fontSize: '1.125rem' },
     },
     body1: {
-      fontSize: '1rem',
+      fontSize: '0.9375rem',
       lineHeight: 1.6,
-      letterSpacing: '0.005em',
+      letterSpacing: '0',
+      '@media (min-width:600px)': { fontSize: '1rem' },
+      '@media (min-width:1200px)': { fontSize: '1.0625rem' },
     },
     body2: {
-      fontSize: '0.875rem',
+      fontSize: '0.8125rem',
       lineHeight: 1.55,
-      letterSpacing: '0.005em',
+      letterSpacing: '0',
+      '@media (min-width:600px)': { fontSize: '0.875rem' },
+      '@media (min-width:1200px)': { fontSize: '0.9375rem' },
     },
     subtitle1: {
       fontSize: '1rem',
