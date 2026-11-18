@@ -84,10 +84,22 @@ const sortSections = (sections) =>
     }))
     .sort((a, b) => a.order - b.order);
 
-const getTopicQuestionCount = async (topic) => {
-  const categoryName = (topic.path || '').replace(/^\/+|\/+$/g, '').trim();
+const topicCategoryName = (topic) => (topic.path || '').replace(/^\/+|\/+$/g, '').trim();
+
+const getQuestionCountsByCategory = async () => {
+  const rows = await Questions.aggregate([
+    { $match: { category: { $type: 'string', $ne: '' } } },
+    { $group: { _id: '$category', count: { $sum: 1 } } },
+  ]);
+
+  return new Map(rows.map((row) => [row._id, row.count]));
+};
+
+const getTopicQuestionCount = async (topic, countsByCategory) => {
+  const categoryName = topicCategoryName(topic);
   if (!categoryName) return 0;
-  return await Questions.countDocuments({ category: categoryName });
+  if (countsByCategory) return countsByCategory.get(categoryName) || 0;
+  return Questions.countDocuments({ category: categoryName });
 };
 
 const getSectionQuestionCount = async (section) => {
@@ -102,6 +114,7 @@ exports.getNavigationConfig = async (_req, res) => {
   try {
     const sections = await NavigationSection.find({ enabled: true });
     const sorted = sortSections(sections);
+    const countsByCategory = await getQuestionCountsByCategory();
     const data = [];
 
     for (const section of sorted) {
@@ -110,7 +123,7 @@ exports.getNavigationConfig = async (_req, res) => {
 
       for (const topic of section.topics) {
         if (topic.enabled) {
-          const count = await getTopicQuestionCount(topic);
+          const count = await getTopicQuestionCount(topic, countsByCategory);
           sectionCount += count;
           topicsData.push({
             _id: topic._id,

@@ -7,7 +7,7 @@ const SHELL_CACHE = 'interviewprep-shell-v1';
 const API_CACHE = 'interviewprep-api-v1';
 const IMAGE_CACHE = 'interviewprep-images-v1';
 const API_FRESH_TTL_MS = 24 * 60 * 60 * 1000;
-const API_TIMEOUT_MS = 8000;
+const API_TIMEOUT_MS = 20000;
 const KEEP_CACHES = new Set([SHELL_CACHE, API_CACHE, IMAGE_CACHE]);
 
 const OFFLINE_WRITE_MESSAGE =
@@ -178,7 +178,17 @@ async function serveApiCache(cache, request) {
 function fetchWithTimeout(request, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-  return fetch(request, { signal: controller.signal }).finally(() => clearTimeout(timer));
+  // Build a fresh request. Reusing the page request with a second abort signal
+  // makes the browser cancel the call before the API can answer.
+  return fetch(request.url, {
+    method: request.method,
+    headers: request.headers,
+    mode: request.mode === 'navigate' ? 'same-origin' : request.mode,
+    credentials: request.credentials,
+    cache: 'no-store',
+    redirect: 'follow',
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timer));
 }
 
 async function networkOrWriteError(request) {
